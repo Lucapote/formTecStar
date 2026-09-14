@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  ChevronRight, ArrowLeft, Rocket, Gamepad2, Code2, GraduationCap, 
-  CheckCircle2, User, Phone, MapPin, CalendarDays, 
-  Bot, MonitorPlay, Compass, AlertTriangle, Navigation, DollarSign, ShieldCheck
+import React, { useState, useEffect } from 'react';
+import {
+  ChevronRight, ArrowLeft, Rocket, Gamepad2, Code2, GraduationCap,
+  CheckCircle2, User, Phone, MapPin, CalendarDays,
+  Bot, MonitorPlay, Compass, AlertTriangle, Navigation, DollarSign, ShieldCheck,
+  Star, Clock, Ticket, Sparkles
 } from 'lucide-react';
 
 const COLORS = {
@@ -46,14 +47,35 @@ const FORM_STEPS = [
   },
   {
     id: 3,
-    title: "Ubicación Presencial y Compromiso",
-    subtitle: "Nuestros programas son 100% PRESENCIALES en nuestra sede de Zona Cumbres Cancún.",
+    title: "Ubicación y Planes",
+    subtitle: "Nuestros programas son PRESENCIALES en Cumbres Cancún con cupos limitados. El precio regular es de $1,500 de inscripción y $2,500 de mensualidad (8 clases/mes).",
     type: "radio",
     field: "commitment",
     options: [
-      { value: "ready", label: "Si le gusta la clase, cubriré inscripción y mensualidad.", description: "Asegurar su lugar presencial en Cumbres Cancún.", icon: <CheckCircle2 size={22} className="text-[#52c41a]" /> },
-      { value: "maybe_later", label: "Solo me interesa la clase gratis por ahora.", description: "Evaluar horarios en Zona Cumbres.", icon: <CalendarDays size={22} className="text-[#7588e0]" /> },
-      { value: "out_of_budget", label: "El presupuesto está fuera de mi alcance.", description: "No podré inscribirlo/a por el momento.", icon: <AlertTriangle size={22} className="text-[#ff4d4f]" /> }
+      {
+        value: "founder_scholarship",
+        label: "¡Quiero aplicar a la Beca Fundadores!",
+        description: "Inscripción $500 y Mensualidad $2,000",
+        icon: <Star size={22} className="text-[#ffc94d] fill-[#ffc94d]" />
+      },
+      {
+        value: "regular",
+        label: "Pagaré el precio regular.",
+        description: "Inscripción $1,500 y Mensualidad $2,500",
+        icon: <CheckCircle2 size={22} className="text-[#52c41a]" />
+      },
+      {
+        value: "maybe_later",
+        label: "Solo me interesa la clase gratis por ahora.",
+        description: "Aún no estoy seguro.",
+        icon: <CalendarDays size={22} className="text-[#7588e0]" />
+      },
+      {
+        value: "out_of_budget",
+        label: "El presupuesto está fuera de mi alcance.",
+        description: "No podré inscribirlo por ahora.",
+        icon: <AlertTriangle size={22} className="text-[#ff4d4f]" />
+      }
     ]
   },
   {
@@ -90,6 +112,41 @@ export default function App() {
   const [isDisqualified, setIsDisqualified] = useState(false);
   const [error, setError] = useState('');
 
+  // Estados para la estrategia de Beca Fundadores
+  const [discountCode, setDiscountCode] = useState('');
+  const [timeLeft, setTimeLeft] = useState(86400); // 24 horas en segundos
+
+  // useEffect para el contador de 24 horas que resta 1 segundo cada segundo
+  useEffect(() => {
+    if (!isSubmitted || !discountCode) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isSubmitted, discountCode]);
+
+  // Función auxiliar para obtener partes del tiempo formateadas
+  const getTimeParts = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    const pad = (num) => String(num).padStart(2, '0');
+    return {
+      hours: pad(hours),
+      minutes: pad(minutes),
+      seconds: pad(seconds)
+    };
+  };
+
   const handleOptionSelect = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError('');
@@ -121,7 +178,7 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!formData.contactName.trim()) {
       setError('Por favor, ingresa tu nombre completo o de tutor.');
       return;
@@ -132,6 +189,17 @@ export default function App() {
       return;
     }
 
+    // Generación de código de beca si seleccionó founder_scholarship
+    if (formData.commitment === 'founder_scholarship') {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let randomCode = '';
+      for (let i = 0; i < 4; i++) {
+        randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      const generatedCode = `TEC-FUNDADOR-${randomCode}`;
+      setDiscountCode(generatedCode);
+    }
+
     console.log("Lead Capturado (TecStars Cumbres Cancún):", formData);
     setIsSubmitted(true);
   };
@@ -140,7 +208,7 @@ export default function App() {
     const progress = ((currentStep) / (FORM_STEPS.length - 1)) * 100;
     return (
       <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden shadow-inner relative">
-        <div 
+        <div
           className="h-full transition-all duration-500 ease-out rounded-full relative"
           style={{ width: `${progress}%`, backgroundColor: COLORS.lightPurple }}
         >
@@ -154,17 +222,17 @@ export default function App() {
 
   if (isSubmitted) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-start pt-8 sm:pt-12 lg:pt-16 p-4 relative overflow-hidden" style={{ backgroundColor: COLORS.darkBlue, fontFamily: "'Montserrat', sans-serif" }}>
+      <div className="min-h-screen w-screen flex flex-col items-center justify-start py-8 sm:py-12 p-4 relative overflow-y-auto" style={{ backgroundColor: COLORS.darkBlue, fontFamily: "'Montserrat', sans-serif" }}>
         <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521]"></div>
-        
+
         {/* Logo oficial por FUERA de la tarjeta sobre el fondo oscuro */}
         <div className="mb-5 relative z-10 flex justify-center shrink-0">
           <img src="/Logo.png" alt="TecStars Logo" className="h-11 sm:h-12 object-contain drop-shadow-lg" />
         </div>
 
         {/* Tarjeta limpia de confirmación */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative z-10 border border-gray-100">
-          
+        <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative z-10 border border-gray-100 animate-slideUpFade">
+
           <div className="mb-3 flex justify-center relative">
             <div className="absolute inset-0 bg-green-100 rounded-full blur-xl animate-pulse"></div>
             <CheckCircle2 size={64} className="text-[#52c41a] relative z-10" />
@@ -175,23 +243,75 @@ export default function App() {
           </h2>
 
           <div className="inline-flex items-center gap-1.5 bg-[#050521] text-[#7588e0] px-3.5 py-1.5 rounded-full text-xs font-bold mb-4 border border-[#7588e0]/30">
-            <MapPin size={14} className="text-[#ffc94d]" />
+            <MapPin size={14} className="text-[#7588e0]" />
             SEDE PRESENCIAL: CUMBRES CANCÚN
           </div>
 
-          <p className="text-gray-600 mb-4 font-medium text-xs sm:text-sm leading-relaxed">
-            ¡Hola <span className="text-[#3a369c] font-bold">{formData.contactName}</span>! Hemos recibido tu solicitud para nuestra sede en <span className="font-bold text-[#050521]">Zona Cumbres Cancún</span>.
+          <p className="text-gray-700 mb-4 font-medium text-xs sm:text-sm leading-relaxed">
+            ¡Hola <span className="text-[#3a369c] font-bold">{formData.contactName}</span>! Hemos recibido tus datos. En breve, nuestra base estelar en Cumbres te enviará un WhatsApp al <span className="font-bold text-[#050521] whitespace-nowrap">{formData.contactPhone}</span> para darte los horarios de la clase muestra.
           </p>
 
-          <div className="bg-indigo-50/90 p-3.5 rounded-xl mb-4 text-left border border-indigo-100">
-            <p className="text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">WhatsApp Registrado:</p>
-            <p className="text-sm font-bold text-[#050521] flex items-center gap-2">
-              <Phone size={16} className="text-[#3a369c]" /> {formData.contactPhone}
-            </p>
-            <p className="text-[11px] text-[#565168] mt-1 font-medium">
-              En breve te escribiremos para mostrarte los días y horarios presenciales disponibles.
-            </p>
-          </div>
+          {/* TARJETA VIP REESTRUCTURADA CON NUEVO ORDEN DE ELEMENTOS */}
+          {discountCode && (
+            <div className="relative overflow-hidden rounded-2xl p-5 mb-5 text-white shadow-2xl border border-[#7588e0]/40 bg-gradient-to-br from-[#3a369c] to-[#050521]">
+              <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#7588e0]/20 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-[#3a369c]/40 rounded-full blur-2xl pointer-events-none"></div>
+
+              <div className="relative z-10 flex flex-col items-center">
+                
+                {/* 1. Título de la beca + Punto Rojo de Alerta */}
+                <div className="flex items-center justify-center gap-2 mb-3 text-[11px] sm:text-xs font-extrabold text-white uppercase tracking-wider text-center">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                  </span>
+                  <span>Tu Código de Beca Fundadores expira en:</span>
+                </div>
+
+                {/* 2. Reloj Regresivo (Cajas Digitales) */}
+                <div className="flex items-center justify-center gap-2 w-full mb-3.5 p-3">
+                  <div className="flex flex-col items-center bg-[#050521] border border-red-500/40 px-3 py-1.5 rounded-xl shadow-md min-w-[56px]">
+                    <span className="font-mono text-2xl sm:text-3xl font-black text-white tracking-wider">
+                      {getTimeParts(timeLeft).hours}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">HORAS</span>
+                  </div>
+
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-red-400 animate-pulse pb-3">:</span>
+
+                  <div className="flex flex-col items-center bg-[#050521] border border-red-500/40 px-3 py-1.5 rounded-xl shadow-md min-w-[56px]">
+                    <span className="font-mono text-2xl sm:text-3xl font-black text-white tracking-wider">
+                      {getTimeParts(timeLeft).minutes}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">MINS</span>
+                  </div>
+
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-red-400 animate-pulse pb-3">:</span>
+
+                  <div className="flex flex-col items-center bg-[#050521] border border-red-500/40 px-3 py-1.5 rounded-xl shadow-md min-w-[56px]">
+                    <span className="font-mono text-2xl sm:text-3xl font-black text-red-400 tracking-wider">
+                      {getTimeParts(timeLeft).seconds}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">SEGS</span>
+                  </div>
+                </div>
+
+                {/* 3. Texto de Instrucción */}
+                <p className="text-[11px] sm:text-xs text-gray-200 font-bold mb-3 leading-snug text-center">
+                  GUÁRDALO, nuestro equipo te lo pedirá para validar tu beca.
+                </p>
+
+                {/* 4. Código de Beca al Final */}
+                <div className="px-3 sm:px-4 py-2.5 bg-[#050521]/90 rounded-xl border-2 border-dashed border-[#7588e0]/70 w-full flex items-center justify-center gap-2 shadow-inner">
+                  <Ticket size={20} className="text-[#7588e0] shrink-0" />
+                  <span className="font-mono text-base sm:text-lg font-extrabold text-white tracking-wider whitespace-nowrap drop-shadow-md">
+                    {discountCode}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          )}
 
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
             TecStars Cancún • El futuro se programa hoy
@@ -205,14 +325,14 @@ export default function App() {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-start pt-8 sm:pt-12 lg:pt-16 p-4 relative overflow-hidden" style={{ backgroundColor: COLORS.darkBlue, fontFamily: "'Montserrat', sans-serif" }}>
         <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521]"></div>
-        
+
         {/* Logo oficial por FUERA de la tarjeta sobre el fondo oscuro */}
         <div className="mb-4 relative z-10 flex justify-center shrink-0">
           <img src="/Logo.png" alt="TecStars Logo" className="h-10 sm:h-11 object-contain drop-shadow-md" />
         </div>
 
         <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl relative z-10 border border-gray-100">
-          
+
           <div className="inline-flex items-center gap-1.5 bg-[#f8fafc] text-[#565168] px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-gray-200">
             <MapPin size={13} className="text-[#3a369c]" /> Sede Cumbres Cancún
           </div>
@@ -221,9 +341,9 @@ export default function App() {
             Gracias por tu interés
           </h2>
           <p className="text-gray-600 mb-5 font-medium text-xs sm:text-sm leading-relaxed">
-            Nuestras clases son 100% presenciales en Cumbres Cancún y requieren esta inversión inicial ($1,500 inscripción y $2,000 mensualidad). Te invitamos a seguirnos en Instagram para enterarte de futuros talleres y becas.
+            Nuestras clases son 100% presenciales en Cumbres Cancún y requieren esta inversión inicial ($1,500 inscripción y $2,500 mensualidad). Te invitamos a seguirnos en Instagram para enterarte de futuros talleres y becas.
           </p>
-          <button 
+          <button
             onClick={() => window.location.href = 'https://instagram.com/tecstars.mx'}
             className="w-full py-3 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-lg flex items-center justify-center gap-2"
             style={{ backgroundColor: COLORS.purple1 }}
@@ -237,19 +357,19 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row overflow-hidden" style={{ backgroundColor: COLORS.background, fontFamily: "'Montserrat', sans-serif" }}>
-      
+
       {/* Panel Lateral Izquierdo (Branding Limpio) */}
       <div className="hidden md:flex flex-col justify-between w-[38%] max-w-sm lg:max-w-md p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl shrink-0 h-full" style={{ backgroundColor: COLORS.darkBlue }}>
-        
+
         {/* Fondo visual galáctico */}
         <div className="absolute top-[-10%] right-[-10%] w-72 h-72 bg-[#3a369c] rounded-full mix-blend-screen filter blur-[70px] opacity-70 animate-pulse-slow"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-[#7588e0] rounded-full mix-blend-screen filter blur-[90px] opacity-40"></div>
-        
+
         <div className="relative z-10">
           <div className="mb-6">
-            <img 
-              src="/Logo.png" 
-              alt="TecStars Logo" 
+            <img
+              src="/Logo.png"
+              alt="TecStars Logo"
               className="h-10 lg:h-12 w-auto object-contain drop-shadow-md"
             />
           </div>
@@ -268,28 +388,28 @@ export default function App() {
           <p className="text-xs lg:text-sm opacity-90 mb-6 font-medium leading-relaxed">
             Completa este diagnóstico para apartar su lugar en la próxima clase de prueba presencial.
           </p>
-          
+
           <div className="space-y-3.5">
             {/* Ubicación Zona Cumbres */}
             <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-xl backdrop-blur-md border border-white/15">
-               <div className="w-11 h-11 rounded-xl bg-[#ffc94d] text-[#050521] flex items-center justify-center shadow-md shrink-0 font-bold">
-                  <MapPin size={22} />
-               </div>
-               <div>
-                 <p className="font-extrabold text-[10px] text-[#ffc94d] uppercase tracking-wider">UBICACIÓN EXCLUSIVA</p>
-                 <p className="font-bold text-sm text-white">Zona Cumbres, Cancún</p>
-                 <p className="text-[11px] text-gray-300 font-medium">Clases 100% presenciales</p>
-               </div>
+              <div className="w-11 h-11 rounded-xl bg-[#ffc94d] text-[#050521] flex items-center justify-center shadow-md shrink-0 font-bold">
+                <MapPin size={22} />
+              </div>
+              <div>
+                <p className="font-extrabold text-[10px] text-[#ffc94d] uppercase tracking-wider">UBICACIÓN EXCLUSIVA</p>
+                <p className="font-bold text-sm text-white">Zona Cumbres, Cancún</p>
+                <p className="text-[11px] text-gray-300 font-medium">Clases 100% presenciales</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-xl backdrop-blur-md border border-white/10">
-               <div className="w-11 h-11 rounded-xl bg-[#7588e0] flex items-center justify-center shadow-lg shrink-0">
-                  <DollarSign size={20} className="text-white" />
-               </div>
-               <div>
-                 <p className="font-bold text-[10px] text-[#7588e0] uppercase tracking-wider">INVERSIÓN REGULAR</p>
-                 <span className="font-semibold text-xs text-white">$1,500 ins. + $2,000/mes (8 clases)</span>
-               </div>
+              <div className="w-11 h-11 rounded-xl bg-[#7588e0] flex items-center justify-center shadow-lg shrink-0">
+                <DollarSign size={20} className="text-[#050521]" />
+              </div>
+              <div>
+                <p className="font-bold text-[10px] text-[#7588e0] uppercase tracking-wider">INVERSIÓN REGULAR</p>
+                <span className="font-semibold text-xs text-white">$1,500 ins. + $2,500/mes (8 clases)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -303,27 +423,27 @@ export default function App() {
 
       {/* Panel Derecho (Alineado Top-Down: La tarjeta y los encabezados quedan FIJOS sin saltos) */}
       <div className="flex-1 flex flex-col items-center justify-start p-3 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-10 relative overflow-y-auto md:overflow-hidden h-full">
-        
+
         {/* Header Móvil con Fondo Oscuro #050521 y Logo.png en blanco */}
         <div className="md:hidden w-full max-w-md flex flex-col items-center mb-4 pt-6 pb-4 px-4.5 text-center bg-[#050521] rounded-2xl border border-[#7588e0]/30 shadow-md shrink-0">
-           <img 
-             src="/Logo.png" 
-             alt="TecStars Logo" 
-             className="h-9 object-contain mb-2.5 drop-shadow-sm" 
-           />
-           <div className="inline-flex items-center gap-1.5 bg-white/10 text-white px-3.5 py-1 rounded-full text-[11px] font-bold border border-[#7588e0]/40">
-             <MapPin size={13} className="text-[#ffc94d]" />
-             SEDE PRESENCIAL: ZONA CUMBRES CANCÚN
-           </div>
+          <img
+            src="/Logo.png"
+            alt="TecStars Logo"
+            className="h-9 object-contain mb-2.5 drop-shadow-sm"
+          />
+          <div className="inline-flex items-center gap-1.5 bg-white/10 text-white px-3.5 py-1 rounded-full text-[11px] font-bold border border-[#7588e0]/40">
+            <MapPin size={13} className="text-[#ffc94d]" />
+            SEDE PRESENCIAL: ZONA CUMBRES CANCÚN
+          </div>
         </div>
 
         {/* Tarjeta del Formulario: Fija desde la parte superior (justify-start min-h-[500px]) */}
         <div className="w-full max-w-md lg:max-w-lg bg-white rounded-3xl p-5 sm:p-7 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 relative flex flex-col justify-start min-h-[500px]">
-          
+
           {/* Fila Fija Superior: Botón Volver + Barra de Progreso */}
           <div className="flex items-center gap-3 mb-4 shrink-0">
             {currentStep > 0 ? (
-              <button 
+              <button
                 onClick={handleBack}
                 className="text-gray-400 hover:text-[#3a369c] transition-colors p-1.5 rounded-xl hover:bg-gray-100 active:bg-gray-200 shrink-0"
                 aria-label="Volver al paso anterior"
@@ -333,12 +453,12 @@ export default function App() {
             ) : (
               <div className="w-[32px] shrink-0" />
             )}
-            
+
             <div className="flex-1">
               <ProgressBar />
             </div>
           </div>
-          
+
           {/* Cabecera Fija del Paso (Paso X de 5, Título y Subtítulo) */}
           <div className="mb-4 shrink-0 min-h-[68px] flex flex-col justify-start">
             <span className="text-[11px] font-bold text-[#7588e0] uppercase tracking-wider block mb-0.5">
@@ -364,7 +484,7 @@ export default function App() {
                   <span className="bg-[#3a369c] text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase font-bold">Presencial</span>
                 </p>
                 <p className="text-[11px] text-gray-600 font-medium leading-snug mt-0.5">
-                  Inversión: <strong>$1,500 inscripción</strong> + <strong>$2,000 al mes</strong> (8 clases/mes).
+                  Precio regular: <strong>$1,500 inscripción</strong> + <strong>$2,500 al mes</strong> (8 clases/mes).
                 </p>
               </div>
             </div>
@@ -377,41 +497,47 @@ export default function App() {
                 {currentStepData.options.map((option) => {
                   const isSelected = formData[currentStepData.field] === option.value;
                   const isDanger = option.value === 'out_of_budget';
-                  
+                  const isScholarship = option.value === 'founder_scholarship';
+
                   return (
-                    <label 
+                    <label
                       key={option.value}
                       className={`
                         relative flex items-center p-3 sm:p-3.5 rounded-xl cursor-pointer border-2 transition-all duration-200 group
-                        ${isSelected 
-                          ? `border-[#3a369c] bg-indigo-50/50 shadow-sm transform scale-[1.005]` 
+                        ${isSelected
+                          ? `border-[#3a369c] bg-indigo-50/50 shadow-sm transform scale-[1.005]`
                           : 'border-gray-100 hover:border-[#7588e0] hover:bg-gray-50'}
+                        ${isScholarship && !isSelected ? 'border-amber-200/80 bg-amber-50/40 hover:border-amber-400' : ''}
+                        ${isScholarship && isSelected ? 'border-[#3a369c] bg-amber-50/60' : ''}
                         ${isDanger && isSelected ? 'border-red-400 bg-red-50' : ''}
                       `}
                     >
-                      <input 
-                        type="radio" 
+                      <input
+                        type="radio"
                         name={currentStepData.field}
                         value={option.value}
                         checked={isSelected}
                         onChange={() => handleOptionSelect(currentStepData.field, option.value)}
                         className="sr-only"
                       />
-                      
+
                       <div className={`
                         flex-shrink-0 mr-3 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200
                         ${isSelected ? `bg-white shadow-sm scale-105` : 'bg-gray-100 group-hover:bg-white'}
+                        ${isScholarship ? 'bg-amber-100/70' : ''}
                         ${isDanger && isSelected ? 'bg-red-100' : ''}
                       `}>
-                         {option.icon}
+                        {option.icon}
                       </div>
-                      
+
                       <div className="flex-1 pr-6">
-                        <h3 className={`font-bold text-sm text-gray-800 transition-colors ${isSelected ? `text-[#3a369c]` : ''} ${isDanger && isSelected ? 'text-red-700' : ''}`}>
-                           {option.label}
+                        <h3 className={`font-bold text-sm text-gray-800 transition-colors ${isSelected ? `text-[#3a369c]` : ''} ${isScholarship ? 'text-[#050521]' : ''} ${isDanger && isSelected ? 'text-red-700' : ''}`}>
+                          {option.label}
                         </h3>
                         {option.description && (
-                          <p className="text-[11px] text-gray-500 mt-0.5 font-medium leading-tight">{option.description}</p>
+                          <p className={`text-[11px] mt-0.5 font-medium leading-tight ${isScholarship ? 'text-amber-800 font-semibold' : 'text-gray-500'}`}>
+                            {option.description}
+                          </p>
                         )}
                       </div>
 
@@ -432,7 +558,7 @@ export default function App() {
             {/* Renderizado del Paso Final (Contacto) */}
             {currentStepData.type === 'contact' && (
               <form onSubmit={handleSubmit} className="space-y-4 animate-slideUpFade">
-                
+
                 {/* Badge Recordatorio de Ubicación */}
                 <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-xs font-semibold text-gray-700">
                   <MapPin size={15} className="text-[#3a369c] shrink-0" />
@@ -503,7 +629,7 @@ export default function App() {
           </div>
 
         </div>
-        
+
       </div>
     </div>
   );
