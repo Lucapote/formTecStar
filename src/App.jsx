@@ -47,52 +47,15 @@ const FORM_STEPS = [
   },
   {
     id: 3,
-    title: "Ubicación y Planes",
-    subtitle: "Nuestros programas son PRESENCIALES en Cumbres Cancún con cupos limitados. El precio regular es de $1,500 de inscripción y $2,500 de mensualidad (8 clases/mes).",
-    type: "radio",
-    field: "commitment",
-    options: [
-      {
-        value: "founder_scholarship",
-        label: "¡Quiero aplicar a la Beca Fundadores!",
-        description: "Inscripción $500 y Mensualidad $2,000",
-        icon: <Star size={22} className="text-[#ffc94d] fill-[#ffc94d]" />
-      },
-      {
-        value: "regular",
-        label: "Pagaré el precio regular.",
-        description: "Inscripción $1,500 y Mensualidad $2,500",
-        icon: <CheckCircle2 size={22} className="text-[#52c41a]" />
-      },
-      {
-        value: "maybe_later",
-        label: "Solo me interesa la clase gratis por ahora.",
-        description: "Aún no estoy seguro.",
-        icon: <CalendarDays size={22} className="text-[#7588e0]" />
-      },
-      {
-        value: "out_of_budget",
-        label: "El presupuesto está fuera de mi alcance.",
-        description: "No podré inscribirlo por ahora.",
-        icon: <AlertTriangle size={22} className="text-[#ff4d4f]" />
-      }
-    ]
+    title: "Aparta su espacio.",
+    subtitle: "Información del programa presencial y fechas de inicio disponibles.",
+    type: "reservation",
+    field: "reservation"
   },
   {
     id: 4,
-    title: "¿Cuándo te gustaría agendar su diagnóstico?",
-    subtitle: "Asegura su lugar presencial hoy mismo en nuestra sede Cumbres Cancún.",
-    type: "radio",
-    field: "urgency",
-    options: [
-      { value: "this_week", label: "Quiero apartar su clase esta misma semana.", icon: <CalendarDays size={22} className="text-[#7588e0]" /> },
-      { value: "next_week", label: "Para la próxima semana / este mes.", icon: <CalendarDays size={22} className="text-[#565168]" /> }
-    ]
-  },
-  {
-    id: 5,
     title: "¡Misión casi lista! Déjanos tus datos",
-    subtitle: "Te contactaremos desde la sede Cumbres Cancún por WhatsApp para enviarte los horarios.",
+    subtitle: "Te contactaremos desde Frimadi International Montessori por WhatsApp para enviarte los horarios.",
     type: "contact",
     field: "contact"
   }
@@ -100,10 +63,12 @@ const FORM_STEPS = [
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [hasScholarship, setHasScholarship] = useState(false);
+  const [vacancies, setVacancies] = useState(4);
   const [formData, setFormData] = useState({
     age: '',
     interest: '',
-    commitment: '',
+    commitment: 'regular',
     urgency: '',
     contactName: '',
     contactPhone: ''
@@ -115,6 +80,38 @@ export default function App() {
   // Estados para la estrategia de Beca Fundadores
   const [discountCode, setDiscountCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(86400); // 24 horas en segundos
+
+  // Contador de urgencia: cambia de 4 a 3 vacantes tras 1.5 segundos al entrar al Paso 3
+  useEffect(() => {
+    if (currentStep === 2) {
+      setVacancies(4);
+      const timer = setTimeout(() => {
+        setVacancies(3);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
+  const handleScholarshipToggle = (checked) => {
+    setHasScholarship(checked);
+    setFormData(prev => ({
+      ...prev,
+      commitment: checked ? 'founder_scholarship' : 'regular',
+      urgency: checked && prev.urgency === 'next_month' ? '' : prev.urgency
+    }));
+  };
+
+  const handleUrgencySelect = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      urgency: value,
+      commitment: hasScholarship ? 'founder_scholarship' : 'regular'
+    }));
+    setError('');
+    setTimeout(() => {
+      setCurrentStep(prev => prev + 1);
+    }, 300);
+  };
 
   // useEffect para el contador de 24 horas que resta 1 segundo cada segundo
   useEffect(() => {
@@ -138,7 +135,7 @@ export default function App() {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    
+
     const pad = (num) => String(num).padStart(2, '0');
     return {
       hours: pad(hours),
@@ -233,87 +230,34 @@ export default function App() {
         {/* Tarjeta limpia de confirmación */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative z-10 border border-gray-100 animate-slideUpFade">
 
-          <div className="mb-3 flex justify-center relative">
+          {/* 1. Título encima del check */}
+          <h2 className="text-2xl font-bold mb-3" style={{ color: COLORS.purple1, fontFamily: "'Fredoka', sans-serif" }}>
+            ¡Misión Iniciada!
+          </h2>
+
+          {/* 2. Check Verde */}
+          <div className="mb-4 flex justify-center relative">
             <div className="absolute inset-0 bg-green-100 rounded-full blur-xl animate-pulse"></div>
             <CheckCircle2 size={64} className="text-[#52c41a] relative z-10" />
           </div>
 
-          <h2 className="text-2xl font-bold mb-2" style={{ color: COLORS.purple1, fontFamily: "'Fredoka', sans-serif" }}>
-            ¡Misión Iniciada!
-          </h2>
-
-          <div className="inline-flex items-center gap-1.5 bg-[#050521] text-[#7588e0] px-3.5 py-1.5 rounded-full text-xs font-bold mb-4 border border-[#7588e0]/30">
-            <MapPin size={14} className="text-[#7588e0]" />
-            SEDE PRESENCIAL: CUMBRES CANCÚN
+          {/* 3. Ubicación con Spans en bloque y centrados */}
+          <div className="inline-flex flex-col items-center justify-center bg-[#050521] text-[#7588e0] px-4 py-2 rounded-2xl text-xs font-bold mb-5 border border-[#7588e0]/30 text-center">
+            <span className="flex items-center gap-1.5 justify-center">
+              <MapPin size={14} className="text-[#7588e0]" />
+              <span>SEDE PRESENCIAL:</span>
+            </span>
+            <span className="block mt-0.5 text-center">
+              FRIMADI INTERNATIONAL MONTESSORI
+            </span>
           </div>
 
-          <p className="text-gray-700 mb-4 font-medium text-xs sm:text-sm leading-relaxed">
-            ¡Hola <span className="text-[#3a369c] font-bold">{formData.contactName}</span>! Hemos recibido tus datos. En breve, nuestra base estelar en Cumbres te enviará un WhatsApp al <span className="font-bold text-[#050521] whitespace-nowrap">{formData.contactPhone}</span> para darte los horarios de la clase muestra.
+          {/* 4. Texto Descriptivo */}
+          <p className="text-gray-700 mb-6 font-medium text-xs sm:text-sm leading-relaxed">
+            ¡Hola <span className="text-[#3a369c] font-bold">{formData.contactName}</span>! Hemos recibido tus datos. En breve, nuestra base estelar te enviará un WhatsApp al <span className="font-bold text-[#050521] whitespace-nowrap">{formData.contactPhone}</span> para agendar la fecha y horario que más se te acomode.
           </p>
 
-          {/* TARJETA VIP REESTRUCTURADA CON NUEVO ORDEN DE ELEMENTOS */}
-          {discountCode && (
-            <div className="relative overflow-hidden rounded-2xl p-5 mb-5 text-white shadow-2xl border border-[#7588e0]/40 bg-gradient-to-br from-[#3a369c] to-[#050521]">
-              <div className="absolute -top-12 -right-12 w-36 h-36 bg-[#7588e0]/20 rounded-full blur-2xl pointer-events-none"></div>
-              <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-[#3a369c]/40 rounded-full blur-2xl pointer-events-none"></div>
-
-              <div className="relative z-10 flex flex-col items-center">
-                
-                {/* 1. Título de la beca + Punto Rojo de Alerta */}
-                <div className="flex items-center justify-center gap-2 mb-3 text-[11px] sm:text-xs font-extrabold text-white uppercase tracking-wider text-center">
-                  <span className="relative flex h-2.5 w-2.5 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                  </span>
-                  <span>Tu Código de Beca Fundadores expira en:</span>
-                </div>
-
-                {/* 2. Reloj Regresivo (Cajas Digitales) */}
-                <div className="flex items-center justify-center gap-2 w-full mb-3.5 p-3">
-                  <div className="flex flex-col items-center bg-[#050521] border border-red-500/40 px-3 py-1.5 rounded-xl shadow-md min-w-[56px]">
-                    <span className="font-mono text-2xl sm:text-3xl font-black text-white tracking-wider">
-                      {getTimeParts(timeLeft).hours}
-                    </span>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">HORAS</span>
-                  </div>
-
-                  <span className="font-mono text-xl sm:text-2xl font-bold text-red-400 animate-pulse pb-3">:</span>
-
-                  <div className="flex flex-col items-center bg-[#050521] border border-red-500/40 px-3 py-1.5 rounded-xl shadow-md min-w-[56px]">
-                    <span className="font-mono text-2xl sm:text-3xl font-black text-white tracking-wider">
-                      {getTimeParts(timeLeft).minutes}
-                    </span>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">MINS</span>
-                  </div>
-
-                  <span className="font-mono text-xl sm:text-2xl font-bold text-red-400 animate-pulse pb-3">:</span>
-
-                  <div className="flex flex-col items-center bg-[#050521] border border-red-500/40 px-3 py-1.5 rounded-xl shadow-md min-w-[56px]">
-                    <span className="font-mono text-2xl sm:text-3xl font-black text-red-400 tracking-wider">
-                      {getTimeParts(timeLeft).seconds}
-                    </span>
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">SEGS</span>
-                  </div>
-                </div>
-
-                {/* 3. Texto de Instrucción */}
-                <p className="text-[11px] sm:text-xs text-gray-200 font-bold mb-3 leading-snug text-center">
-                  GUÁRDALO, nuestro equipo te lo pedirá para validar tu beca.
-                </p>
-
-                {/* 4. Código de Beca al Final */}
-                <div className="px-3 sm:px-4 py-2.5 bg-[#050521]/90 rounded-xl border-2 border-dashed border-[#7588e0]/70 w-full flex items-center justify-center gap-2 shadow-inner">
-                  <Ticket size={20} className="text-[#7588e0] shrink-0" />
-                  <span className="font-mono text-base sm:text-lg font-extrabold text-white tracking-wider whitespace-nowrap drop-shadow-md">
-                    {discountCode}
-                  </span>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider border-t border-gray-100 pt-3">
             TecStars Cancún • El futuro se programa hoy
           </p>
         </div>
@@ -356,10 +300,10 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col md:flex-row overflow-hidden" style={{ backgroundColor: COLORS.background, fontFamily: "'Montserrat', sans-serif" }}>
+    <div className="min-h-screen w-screen flex flex-col md:flex-row overflow-y-auto" style={{ backgroundColor: COLORS.background, fontFamily: "'Montserrat', sans-serif" }}>
 
       {/* Panel Lateral Izquierdo (Branding Limpio) */}
-      <div className="hidden md:flex flex-col justify-between w-[38%] max-w-sm lg:max-w-md p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl shrink-0 h-full" style={{ backgroundColor: COLORS.darkBlue }}>
+      <div className="hidden md:flex flex-col justify-between w-[38%] max-w-sm lg:max-w-md p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl shrink-0 h-auto min-h-screen" style={{ backgroundColor: COLORS.darkBlue }}>
 
         {/* Fondo visual galáctico */}
         <div className="absolute top-[-10%] right-[-10%] w-72 h-72 bg-[#3a369c] rounded-full mix-blend-screen filter blur-[70px] opacity-70 animate-pulse-slow"></div>
@@ -374,11 +318,11 @@ export default function App() {
             />
           </div>
 
-          {/* Badge Destacado de Ubicación Cumbres Cancún */}
+          {/* Badge Destacado de Ubicación */}
           <div className="inline-flex items-center gap-1.5 bg-[#3a369c]/60 border border-[#7588e0]/40 px-3.5 py-1.5 rounded-full mb-6 backdrop-blur-md">
             <Navigation size={13} className="text-[#ffc94d] animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider text-white">
-              Sede Presencial Cancún
+              Frimadi International Montessori
             </span>
           </div>
 
@@ -390,14 +334,14 @@ export default function App() {
           </p>
 
           <div className="space-y-3.5">
-            {/* Ubicación Zona Cumbres */}
+            {/* Ubicación Frimadi International Montessori */}
             <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-xl backdrop-blur-md border border-white/15">
               <div className="w-11 h-11 rounded-xl bg-[#ffc94d] text-[#050521] flex items-center justify-center shadow-md shrink-0 font-bold">
                 <MapPin size={22} />
               </div>
               <div>
                 <p className="font-extrabold text-[10px] text-[#ffc94d] uppercase tracking-wider">UBICACIÓN EXCLUSIVA</p>
-                <p className="font-bold text-sm text-white">Zona Cumbres, Cancún</p>
+                <p className="font-bold text-sm text-white">Frimadi International Montessori</p>
                 <p className="text-[11px] text-gray-300 font-medium">Clases 100% presenciales</p>
               </div>
             </div>
@@ -408,21 +352,21 @@ export default function App() {
               </div>
               <div>
                 <p className="font-bold text-[10px] text-[#7588e0] uppercase tracking-wider">INVERSIÓN REGULAR</p>
-                <span className="font-semibold text-xs text-white">$1,500 ins. + $2,500/mes (8 clases)</span>
+                <span className="font-semibold text-xs text-white">$1,500 ins. + $2,500/mes (2 clases/sem)</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer del Sidebar Limpio */}
-        <div className="relative z-10 pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-semibold text-gray-300 opacity-80">
+        <div className="relative z-10 pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-semibold text-gray-300 opacity-80 mt-6">
           <ShieldCheck size={16} className="text-[#7588e0]" />
           <span>Información 100% confidencial y protegida</span>
         </div>
       </div>
 
-      {/* Panel Derecho (Alineado Top-Down: La tarjeta y los encabezados quedan FIJOS sin saltos) */}
-      <div className="flex-1 flex flex-col items-center justify-start p-3 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-10 relative overflow-y-auto md:overflow-hidden h-full">
+      {/* Panel Derecho (Alineado Top-Down con Scroll Vertical Habilitado) */}
+      <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-8 relative overflow-y-auto min-h-full">
 
         {/* Header Móvil con Fondo Oscuro #050521 y Logo.png en blanco */}
         <div className="md:hidden w-full max-w-md flex flex-col items-center mb-4 pt-6 pb-4 px-4.5 text-center bg-[#050521] rounded-2xl border border-[#7588e0]/30 shadow-md shrink-0">
@@ -433,12 +377,12 @@ export default function App() {
           />
           <div className="inline-flex items-center gap-1.5 bg-white/10 text-white px-3.5 py-1 rounded-full text-[11px] font-bold border border-[#7588e0]/40">
             <MapPin size={13} className="text-[#ffc94d]" />
-            SEDE PRESENCIAL: ZONA CUMBRES CANCÚN
+            SEDE: FRIMADI INTERNATIONAL MONTESSORI
           </div>
         </div>
 
-        {/* Tarjeta del Formulario: Fija desde la parte superior (justify-start min-h-[500px]) */}
-        <div className="w-full max-w-md lg:max-w-lg bg-white rounded-3xl p-5 sm:p-7 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 relative flex flex-col justify-start min-h-[500px]">
+        {/* Tarjeta del Formulario */}
+        <div className="w-full max-w-md lg:max-w-lg bg-white rounded-3xl p-5 sm:p-7 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 relative flex flex-col justify-start my-auto">
 
           {/* Fila Fija Superior: Botón Volver + Barra de Progreso */}
           <div className="flex items-center gap-3 mb-4 shrink-0">
@@ -490,14 +434,12 @@ export default function App() {
             </div>
           )}
 
-          {/* Área Principal de Opciones (Top-Down, No cambia la posición de la cabecera) */}
+          {/* Área Principal de Opciones (Top-Down) */}
           <div className="flex-1 flex flex-col justify-start">
             {currentStepData.type === 'radio' && (
               <div className="space-y-2.5 animate-slideUpFade">
                 {currentStepData.options.map((option) => {
                   const isSelected = formData[currentStepData.field] === option.value;
-                  const isDanger = option.value === 'out_of_budget';
-                  const isScholarship = option.value === 'founder_scholarship';
 
                   return (
                     <label
@@ -507,9 +449,6 @@ export default function App() {
                         ${isSelected
                           ? `border-[#3a369c] bg-indigo-50/50 shadow-sm transform scale-[1.005]`
                           : 'border-gray-100 hover:border-[#7588e0] hover:bg-gray-50'}
-                        ${isScholarship && !isSelected ? 'border-amber-200/80 bg-amber-50/40 hover:border-amber-400' : ''}
-                        ${isScholarship && isSelected ? 'border-[#3a369c] bg-amber-50/60' : ''}
-                        ${isDanger && isSelected ? 'border-red-400 bg-red-50' : ''}
                       `}
                     >
                       <input
@@ -524,18 +463,16 @@ export default function App() {
                       <div className={`
                         flex-shrink-0 mr-3 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200
                         ${isSelected ? `bg-white shadow-sm scale-105` : 'bg-gray-100 group-hover:bg-white'}
-                        ${isScholarship ? 'bg-amber-100/70' : ''}
-                        ${isDanger && isSelected ? 'bg-red-100' : ''}
                       `}>
                         {option.icon}
                       </div>
 
                       <div className="flex-1 pr-6">
-                        <h3 className={`font-bold text-sm text-gray-800 transition-colors ${isSelected ? `text-[#3a369c]` : ''} ${isScholarship ? 'text-[#050521]' : ''} ${isDanger && isSelected ? 'text-red-700' : ''}`}>
+                        <h3 className={`font-bold text-sm text-gray-800 transition-colors ${isSelected ? `text-[#3a369c]` : ''}`}>
                           {option.label}
                         </h3>
                         {option.description && (
-                          <p className={`text-[11px] mt-0.5 font-medium leading-tight ${isScholarship ? 'text-amber-800 font-semibold' : 'text-gray-500'}`}>
+                          <p className="text-[11px] mt-0.5 font-medium leading-tight text-gray-500">
                             {option.description}
                           </p>
                         )}
@@ -545,13 +482,143 @@ export default function App() {
                       <div className={`
                         absolute right-3.5 w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-colors
                         ${isSelected ? `border-[#3a369c]` : 'border-gray-200 group-hover:border-[#7588e0]'}
-                        ${isDanger && isSelected ? 'border-red-500' : ''}
                       `}>
-                        {isSelected && <div className={`w-2 h-2 rounded-full ${isDanger ? 'bg-red-500' : `bg-[#3a369c]`}`} />}
+                        {isSelected && <div className="w-2 h-2 rounded-full bg-[#3a369c]" />}
                       </div>
                     </label>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Renderizado de Paso 3: Aparta su espacio (Unificado) */}
+            {currentStepData.type === 'reservation' && (
+              <div className="space-y-3.5 animate-slideUpFade">
+                {/* Renglones Informativos Limpios (Sin contenedor, bordes ni íconos) */}
+                <div className="space-y-2 text-xs sm:text-sm py-1">
+                  <p className="text-gray-800 leading-relaxed">
+                    <strong className="text-[#050521] font-extrabold">Ubicación:</strong> Frimadi International Montessori
+                  </p>
+
+                  <div className="text-gray-800 flex items-center gap-2 flex-wrap">
+                    <strong className="text-[#050521] font-extrabold">Mensualidad:</strong>
+                    {hasScholarship ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="font-extrabold text-[#3a369c] text-base">$2,000</span>
+                        <span className="line-through text-gray-400 text-xs font-semibold">$2,500</span>
+                      </span>
+                    ) : (
+                      <span className="font-extrabold text-[#3a369c] text-base">$2,500</span>
+                    )}
+                  </div>
+
+                  <div className="text-gray-800 flex items-center gap-2 flex-wrap">
+                    <strong className="text-[#050521] font-extrabold">Inscripción ÚNICA:</strong>
+                    {hasScholarship ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="font-extrabold text-[#3a369c] text-base">$500</span>
+                        <span className="line-through text-gray-400 text-xs font-semibold">$1,500</span>
+                      </span>
+                    ) : (
+                      <span className="font-extrabold text-[#3a369c] text-base">$1,500</span>
+                    )}
+                  </div>
+
+                  <p className="text-gray-800 leading-relaxed">
+                    <strong className="text-[#050521] font-extrabold">Modalidad:</strong> 2 clases semanales de 1 hora presenciales
+                  </p>
+                </div>
+
+                {/* Checkbox de Beca Fundadores (3 vacantes) */}
+                <label className={`
+                  relative flex items-center p-3 sm:p-3.5 rounded-2xl cursor-pointer border-2 transition-all duration-200 select-none
+                  ${hasScholarship
+                    ? 'border-amber-400 bg-amber-50/90 shadow-sm'
+                    : 'border-amber-200/80 bg-amber-50/30 hover:border-amber-400 hover:bg-amber-50/60'}
+                `}>
+                  <input
+                    type="checkbox"
+                    checked={hasScholarship}
+                    onChange={(e) => handleScholarshipToggle(e.target.checked)}
+                    className="w-5 h-5 rounded text-[#3a369c] focus:ring-[#3a369c] border-gray-300 shrink-0 cursor-pointer accent-[#3a369c]"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-extrabold text-xs sm:text-sm text-[#050521] flex items-center gap-1">
+                        Aplica a Beca Fundadores
+                      </span>
+                      <span className={`
+                        text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider transition-all duration-500
+                        ${vacancies === 3 ? 'bg-red-600 animate-pulse scale-105 shadow-sm' : 'bg-red-500'}
+                      `}>
+                        {vacancies} vacantes
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-900/90 font-medium mt-0.5 leading-tight">
+                      {hasScholarship
+                        ? '¡Beca activa! Mensualidad a $2,000 e Inscripción a $500.'
+                        : 'Marca la casilla para aplicar a la Beca Fundadores'}
+                    </p>
+                  </div>
+                </label>
+
+                {/* Opciones de apartar el espacio */}
+                <div className="space-y-2 pt-1">
+                  <label className="block text-[11px] font-bold text-[#050521] uppercase tracking-wider ml-1">
+                    Opciones para apartar el espacio
+                  </label>
+
+                  {[
+                    { value: 'this_week', label: 'Esta semana', icon: <CalendarDays size={20} className="text-[#7588e0]" /> },
+                    { value: 'next_week', label: 'Próxima semana', icon: <CalendarDays size={20} className="text-[#565168]" /> },
+                    {
+                      value: 'next_month',
+                      label: 'Próximo mes',
+                      icon: <CalendarDays size={20} className="text-gray-400" />,
+                      disabled: hasScholarship,
+                      disabledText: '(No disponible con Beca Fundadores)'
+                    }
+                  ].map((option) => {
+                    const isSelected = formData.urgency === option.value;
+                    const isDisabled = option.disabled;
+
+                    return (
+                      <div
+                        key={option.value}
+                        onClick={() => {
+                          if (isDisabled) return;
+                          handleUrgencySelect(option.value);
+                        }}
+                        className={`
+                          relative flex items-center p-3 rounded-xl border-2 transition-all duration-200
+                          ${isDisabled
+                            ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-100'
+                            : 'cursor-pointer hover:border-[#7588e0] hover:bg-gray-50'}
+                          ${isSelected && !isDisabled
+                            ? 'border-[#3a369c] bg-indigo-50/50 shadow-sm'
+                            : !isDisabled ? 'border-gray-100' : ''}
+                        `}
+                      >
+                        <div className={`mr-3 w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${isSelected && !isDisabled ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
+                          {option.icon}
+                        </div>
+                        <div className="flex-1">
+                          <span className={`font-bold text-sm ${isDisabled ? 'text-gray-400' : 'text-gray-800'}`}>
+                            {option.label}
+                          </span>
+                          {isDisabled && (
+                            <span className="text-[11px] font-semibold text-red-500 ml-2 block sm:inline">
+                              {option.disabledText}
+                            </span>
+                          )}
+                        </div>
+                        <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected && !isDisabled ? 'border-[#3a369c]' : 'border-gray-200'}`}>
+                          {isSelected && !isDisabled && <div className="w-2 h-2 rounded-full bg-[#3a369c]" />}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
@@ -562,7 +629,7 @@ export default function App() {
                 {/* Badge Recordatorio de Ubicación */}
                 <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-xs font-semibold text-gray-700">
                   <MapPin size={15} className="text-[#3a369c] shrink-0" />
-                  Sede de diagnóstico: Zona Cumbres Cancún
+                  Sede de diagnóstico: Frimadi International Montessori
                 </div>
 
                 <div className="space-y-1">
@@ -624,7 +691,7 @@ export default function App() {
           {/* Footer Fijo en la tarjeta */}
           <div className="mt-4 text-center border-t border-gray-100 pt-3 shrink-0">
             <p className="text-[#565168] text-[11px] font-medium flex items-center justify-center gap-1">
-              <MapPin size={11} className="text-[#3a369c]" /> Cumbres Cancún, Quintana Roo
+              <MapPin size={11} className="text-[#3a369c]" /> Frimadi International Montessori
             </p>
           </div>
 
