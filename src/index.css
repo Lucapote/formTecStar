@@ -84,3 +84,21 @@ body {
 .animate-shake {
   animation: shake 0.4s ease-in-out;
 }
+
+@keyframes pricePop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pricePop {
+  display: inline-block;
+  transform-origin: left center;
+  animation: pricePop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}

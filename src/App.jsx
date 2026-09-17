@@ -28,8 +28,7 @@ const FORM_STEPS = [
     options: [
       { value: "5-9", label: "5 a 9 años", description: "Iniciación, lógica y robótica educativa", icon: <Rocket size={22} className="text-[#7588e0]" /> },
       { value: "10-14", label: "10 a 14 años", description: "Robótica avanzada y creación de videojuegos", icon: <Gamepad2 size={22} className="text-[#7588e0]" /> },
-      { value: "14+", label: "14+ años", description: "Programación real y desarrollo de software", icon: <Code2 size={22} className="text-[#7588e0]" /> },
-      { value: "multiple", label: "Tengo más de un hijo/a", description: "¡Pregunta por descuentos para hermanos!", icon: <GraduationCap size={22} className="text-[#7588e0]" /> }
+      { value: "14+", label: "14+ años", description: "Programación real y desarrollo de software", icon: <Code2 size={22} className="text-[#7588e0]" /> }
     ]
   },
   {
@@ -55,7 +54,7 @@ const FORM_STEPS = [
   {
     id: 4,
     title: "¡Misión casi lista! Déjanos tus datos",
-    subtitle: "Te contactaremos desde Frimadi International Montessori por WhatsApp para enviarte los horarios.",
+    subtitle: "Te contactaremos desde TecStars por WhatsApp para enviarte los horarios.",
     type: "contact",
     field: "contact"
   }
@@ -216,6 +215,7 @@ export default function App() {
   };
 
   const currentStepData = FORM_STEPS[currentStep];
+  const displayVacancies = hasScholarship ? Math.max(1, vacancies - 1) : vacancies;
 
   if (isSubmitted) {
     return (
@@ -504,7 +504,7 @@ export default function App() {
                     <strong className="text-[#050521] font-extrabold">Mensualidad:</strong>
                     {hasScholarship ? (
                       <span className="inline-flex items-center gap-2">
-                        <span className="font-extrabold text-[#3a369c] text-base">$2,000</span>
+                        <span key="pop-mensualidad" className="font-extrabold text-[#80FF00] text-base inline-block animate-pricePop">$2,000</span>
                         <span className="line-through text-gray-400 text-xs font-semibold">$2,500</span>
                       </span>
                     ) : (
@@ -516,7 +516,7 @@ export default function App() {
                     <strong className="text-[#050521] font-extrabold">Inscripción ÚNICA:</strong>
                     {hasScholarship ? (
                       <span className="inline-flex items-center gap-2">
-                        <span className="font-extrabold text-[#3a369c] text-base">$500</span>
+                        <span key="pop-inscripcion" className="font-extrabold text-[#80FF00] text-base inline-block animate-pricePop">$500</span>
                         <span className="line-through text-gray-400 text-xs font-semibold">$1,500</span>
                       </span>
                     ) : (
@@ -545,13 +545,13 @@ export default function App() {
                   <div className="ml-3 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-extrabold text-xs sm:text-sm text-[#050521] flex items-center gap-1">
-                        Aplica a Beca Fundadores
+                        {hasScholarship ? 'Beca Aplicada' : 'Aplica a Beca Fundadores'}
                       </span>
-                      <span className={`
+                      <span key={displayVacancies} className={`
                         text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider transition-all duration-500
-                        ${vacancies === 3 ? 'bg-red-600 animate-pulse scale-105 shadow-sm' : 'bg-red-500'}
+                        ${displayVacancies <= 2 || vacancies === 3 ? 'bg-red-600 animate-pulse scale-105 shadow-sm' : 'bg-red-500'}
                       `}>
-                        {vacancies} vacantes
+                        {displayVacancies} vacantes
                       </span>
                     </div>
                     <p className="text-[11px] text-amber-900/90 font-medium mt-0.5 leading-tight">
