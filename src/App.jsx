@@ -504,7 +504,7 @@ export default function App() {
                     <strong className="text-[#050521] font-extrabold">Mensualidad:</strong>
                     {hasScholarship ? (
                       <span className="inline-flex items-center gap-2">
-                        <span key="pop-mensualidad" className="font-extrabold text-[#80FF00] text-base inline-block animate-pricePop">$2,000</span>
+                        <span key="pop-mensualidad" className="font-extrabold text-[#16c722] text-base inline-block animate-pricePop">$2,000</span>
                         <span className="line-through text-gray-400 text-xs font-semibold">$2,500</span>
                       </span>
                     ) : (
@@ -516,7 +516,7 @@ export default function App() {
                     <strong className="text-[#050521] font-extrabold">Inscripción ÚNICA:</strong>
                     {hasScholarship ? (
                       <span className="inline-flex items-center gap-2">
-                        <span key="pop-inscripcion" className="font-extrabold text-[#80FF00] text-base inline-block animate-pricePop">$500</span>
+                        <span key="pop-inscripcion" className="font-extrabold text-[#16c722] text-base inline-block animate-pricePop">$500</span>
                         <span className="line-through text-gray-400 text-xs font-semibold">$1,500</span>
                       </span>
                     ) : (
