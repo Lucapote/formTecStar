@@ -5,6 +5,7 @@ import {
   Bot, MonitorPlay, Compass, AlertTriangle, Navigation, DollarSign, ShieldCheck,
   Star, Clock, Ticket, Sparkles
 } from 'lucide-react';
+import DynamicBackground from './components/DynamicBackground';
 
 const COLORS = {
   darkBlue: '#050521',
@@ -219,8 +220,9 @@ export default function App() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen w-screen flex flex-col items-center justify-start py-8 sm:py-12 p-4 relative overflow-y-auto" style={{ backgroundColor: COLORS.darkBlue, fontFamily: "'Montserrat', sans-serif" }}>
-        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521]"></div>
+      <div className="min-h-screen w-screen flex flex-col items-center justify-start py-8 sm:py-12 p-4 relative overflow-y-auto" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
+        <DynamicBackground />
+        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521] pointer-events-none"></div>
 
         {/* Logo oficial por FUERA de la tarjeta sobre el fondo oscuro */}
         <div className="mb-5 relative z-10 flex justify-center shrink-0">
@@ -267,8 +269,9 @@ export default function App() {
 
   if (isDisqualified) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-start pt-8 sm:pt-12 lg:pt-16 p-4 relative overflow-hidden" style={{ backgroundColor: COLORS.darkBlue, fontFamily: "'Montserrat', sans-serif" }}>
-        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521]"></div>
+      <div className="h-screen w-screen flex flex-col items-center justify-start pt-8 sm:pt-12 lg:pt-16 p-4 relative overflow-hidden" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
+        <DynamicBackground />
+        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521] pointer-events-none"></div>
 
         {/* Logo oficial por FUERA de la tarjeta sobre el fondo oscuro */}
         <div className="mb-4 relative z-10 flex justify-center shrink-0">
@@ -300,7 +303,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-screen flex flex-col md:flex-row overflow-y-auto" style={{ backgroundColor: COLORS.background, fontFamily: "'Montserrat', sans-serif" }}>
+    <div className="min-h-screen w-screen flex flex-col md:flex-row overflow-y-auto relative" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
+      <DynamicBackground />
 
       {/* Panel Lateral Izquierdo (Branding Limpio) */}
       <div className="hidden md:flex flex-col justify-between w-[38%] max-w-sm lg:max-w-md p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl shrink-0 h-auto min-h-screen" style={{ backgroundColor: COLORS.darkBlue }}>
@@ -368,8 +372,8 @@ export default function App() {
       {/* Panel Derecho (Alineado Top-Down con Scroll Vertical Habilitado) */}
       <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-8 relative overflow-y-auto min-h-full">
 
-        {/* Header Móvil con Fondo Oscuro #050521 y Logo.png en blanco */}
-        <div className="md:hidden w-full max-w-md flex flex-col items-center mb-4 pt-6 pb-4 px-4.5 text-center bg-[#050521] rounded-2xl border border-[#7588e0]/30 shadow-md shrink-0">
+        {/* Header Móvil con Fondo Oscuro Transparente y Logo.png en blanco */}
+        <div className="md:hidden w-full max-w-md flex flex-col items-center mb-4 pt-6 pb-4 px-4.5 text-center bg-[#050521]/60 backdrop-blur-md rounded-2xl border border-[#7588e0]/30 shadow-md shrink-0">
           <img
             src="/Logo.png"
             alt="TecStars Logo"
