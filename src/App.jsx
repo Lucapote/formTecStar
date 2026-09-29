@@ -635,10 +635,10 @@ export default function App() {
 
             {/* Renderizado de Paso 4: PAS (Problem, Agitation, Solution) */}
             {currentStepData.type === 'pas' && (
-              <div className="space-y-3.5 animate-slideUpFade">
+              <div className="space-y-3.5 relative">
 
-                {/* 1. EL PROBLEMA */}
-                <div className="bg-red-50/70 border border-red-100 rounded-2xl p-3.5 space-y-2.5">
+                {/* 1. EL PROBLEMA (Entrada desde la izquierda) */}
+                <div className="bg-red-50/70 border border-red-100 rounded-2xl p-3.5 space-y-2.5 animate-slideInLeft animation-delay-100">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
                       <AlertTriangle size={14} />
@@ -663,16 +663,16 @@ export default function App() {
                   </ul>
                 </div>
 
-                {/* 2. LA AGITACIÓN */}
-                <div className="bg-[#050521] border border-[#7588e0]/30 rounded-2xl p-3.5 sm:p-4 text-white shadow-md relative overflow-hidden">
+                {/* 2. LA AGITACIÓN (Entrada desde la derecha con pausa para leer) */}
+                <div className="bg-[#050521] border border-[#7588e0]/30 rounded-2xl p-3.5 sm:p-4 text-white shadow-md relative overflow-hidden animate-slideInRight animation-delay-500">
                   <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#3a369c] rounded-full blur-2xl opacity-50 pointer-events-none"></div>
                   <p className="text-xs leading-relaxed text-gray-200 font-medium relative z-10">
                     Si no tomas acción, este año tu hijo pasará <strong className="text-[#ffc94d]">más de 1,000 horas frente a una pantalla</strong> y tú habrás gastado miles de pesos en Robux y pases de batalla sin ningún retorno. Tiempo y dinero que podrías invertir en prepararlo para el mañana. <span className="text-[#7588e0] font-bold block mt-1">¿De verdad quieres que siga siendo solo un consumidor en lugar de un creador?</span>
                   </p>
                 </div>
 
-                {/* 3. LA SOLUCIÓN */}
-                <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-2.5">
+                {/* 3. LA SOLUCIÓN (Entrada desde la izquierda tras agitación) */}
+                <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-2.5 animate-slideInLeft animation-delay-900">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                       <Sparkles size={14} />
@@ -701,15 +701,17 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Botón para avanzar al paso 5 (Contacto) */}
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(4)}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_16px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 mt-3"
-                  style={{ backgroundColor: COLORS.purple1 }}
-                >
-                  Asegurar mi Beca y Clase de Diagnóstico <ChevronRight size={18} />
-                </button>
+                {/* Botón para avanzar al paso 5 (Contacto) - Sticky flotante al hacer scroll en Mobile */}
+                <div className="sticky bottom-2 sm:relative sm:bottom-0 z-30 pt-2 pb-1 bg-white/90 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none rounded-xl animate-slideUpFade animation-delay-1000">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(4)}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_20px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 cursor-pointer"
+                    style={{ backgroundColor: COLORS.purple1 }}
+                  >
+                    Asegurar mi Beca y Clase de Diagnóstico <ChevronRight size={18} />
+                  </button>
+                </div>
               </div>
             )}
 
