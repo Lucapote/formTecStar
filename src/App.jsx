@@ -1,72 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ChevronRight, ArrowLeft, Rocket, Gamepad2, Code2, GraduationCap,
-  CheckCircle2, User, Phone, MapPin, CalendarDays,
-  Bot, MonitorPlay, Compass, AlertTriangle, Navigation, DollarSign, ShieldCheck,
-  Star, Clock, Ticket, Sparkles
+  ChevronRight,
+  ArrowLeft,
+  CheckCircle2,
+  User,
+  Phone,
+  MapPin,
+  CalendarDays,
+  AlertTriangle,
+  Navigation,
+  DollarSign,
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 import DynamicBackground from './components/DynamicBackground';
-
-const COLORS = {
-  darkBlue: '#050521',
-  purple1: '#3a369c',
-  purple2: '#565168',
-  lightPurple: '#7588e0',
-  white: '#ffffff',
-  error: '#ff4d4f',
-  success: '#52c41a',
-  background: '#f8fafc',
-  accentYellow: '#ffc94d'
-};
-
-const FORM_STEPS = [
-  {
-    id: 1,
-    title: "¿Qué edad tiene tu pequeño amante de la tecnológia?",
-    subtitle: "Personalizamos la experiencia según su etapa de desarrollo.",
-    type: "radio",
-    field: "age",
-    options: [
-      { value: "5-9", label: "5 a 9 años", description: "Iniciación, lógica y robótica educativa", icon: <Rocket size={22} className="text-[#7588e0]" /> },
-      { value: "10-14", label: "10 a 14 años", description: "Robótica avanzada y creación de videojuegos", icon: <Gamepad2 size={22} className="text-[#7588e0]" /> },
-      { value: "14+", label: "14+ años", description: "Programación real y desarrollo de software", icon: <Code2 size={22} className="text-[#7588e0]" /> }
-    ]
-  },
-  {
-    id: 2,
-    title: "¿Qué es lo que más le gustaría aprender?",
-    subtitle: "Queremos potenciar su pasión tecnológica desde el primer día.",
-    type: "radio",
-    field: "interest",
-    options: [
-      { value: "robots", label: "Armar y programar robots", icon: <Bot size={22} className="text-[#7588e0]" /> },
-      { value: "games", label: "Crear sus propios videojuegos", icon: <Gamepad2 size={22} className="text-[#7588e0]" /> },
-      { value: "design", label: "Programación y diseño digital", icon: <MonitorPlay size={22} className="text-[#7588e0]" /> },
-      { value: "orientation", label: "Quiero orientación del profesor", icon: <Compass size={22} className="text-[#7588e0]" /> }
-    ]
-  },
-  {
-    id: 3,
-    title: "Aparta su espacio.",
-    subtitle: "Información del programa presencial y fechas de inicio disponibles.",
-    type: "reservation",
-    field: "reservation"
-  },
-  {
-    id: 4,
-    title: "De consumidor pasivo a creador del futuro.",
-    subtitle: "Transforma su relación con las pantallas y asegura su desarrollo.",
-    type: "pas",
-    field: "pas"
-  },
-  {
-    id: 5,
-    title: "¡Misión casi lista! Déjanos tus datos",
-    subtitle: "Te contactaremos desde TecStars por WhatsApp para enviarte los horarios y que tu peque pueda crear un sitio como este.",
-    type: "contact",
-    field: "contact"
-  }
-];
+import { COLORS, FORM_STEPS } from './data/formData';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -84,11 +32,7 @@ export default function App() {
   const [isDisqualified, setIsDisqualified] = useState(false);
   const [error, setError] = useState('');
 
-  // Estados para la estrategia de Beca Fundadores
-  const [discountCode, setDiscountCode] = useState('');
-  const [timeLeft, setTimeLeft] = useState(86400); // 24 horas en segundos
-
-  // Contador de urgencia: cambia de 4 a 3 vacantes tras 1.5 segundos al entrar al Paso 3
+  // Contador de urgencia: cambia de 4 a 3 vacantes tras 1.5s al entrar al Paso 3 (Apartar espacio)
   useEffect(() => {
     if (currentStep === 2) {
       setVacancies(4);
@@ -118,37 +62,6 @@ export default function App() {
     setTimeout(() => {
       setCurrentStep(prev => prev + 1);
     }, 300);
-  };
-
-  // useEffect para el contador de 24 horas que resta 1 segundo cada segundo
-  useEffect(() => {
-    if (!isSubmitted || !discountCode) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isSubmitted, discountCode]);
-
-  // Función auxiliar para obtener partes del tiempo formateadas
-  const getTimeParts = (totalSeconds) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    const pad = (num) => String(num).padStart(2, '0');
-    return {
-      hours: pad(hours),
-      minutes: pad(minutes),
-      seconds: pad(seconds)
-    };
   };
 
   const handleOptionSelect = (field, value) => {
@@ -193,30 +106,19 @@ export default function App() {
       return;
     }
 
-    // Generación de código de beca si seleccionó founder_scholarship
-    if (formData.commitment === 'founder_scholarship') {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let randomCode = '';
-      for (let i = 0; i < 4; i++) {
-        randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      const generatedCode = `TEC-FUNDADOR-${randomCode}`;
-      setDiscountCode(generatedCode);
-    }
-
     console.log("Lead Capturado (TecStars Cumbres Cancún):", formData);
     setIsSubmitted(true);
   };
 
   const ProgressBar = () => {
-    const progress = ((currentStep) / (FORM_STEPS.length - 1)) * 100;
+    const progress = (currentStep / (FORM_STEPS.length - 1)) * 100;
     return (
       <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden shadow-inner relative">
         <div
           className="h-full transition-all duration-500 ease-out rounded-full relative"
           style={{ width: `${progress}%`, backgroundColor: COLORS.lightPurple }}
         >
-          <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
+          <div className="absolute inset-0 bg-white/30 animate-pulse" />
         </div>
       </div>
     );
@@ -225,48 +127,130 @@ export default function App() {
   const currentStepData = FORM_STEPS[currentStep];
   const displayVacancies = hasScholarship ? Math.max(1, vacancies - 1) : vacancies;
 
+  // -------------------------------------------------------------
+  // VISTA 1: PANTALLA DE CONFIRMACIÓN / AGRADECIMIENTO (NEUROMARKETING)
+  // -------------------------------------------------------------
   if (isSubmitted) {
     return (
-      <div className="min-h-screen w-screen flex flex-col items-center justify-start py-8 sm:py-12 p-4 relative overflow-y-auto" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
+      <div className="min-h-screen w-screen flex flex-col items-center justify-start py-6 sm:py-10 p-4 relative overflow-y-auto" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
         <DynamicBackground />
-        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521] pointer-events-none"></div>
+        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521] pointer-events-none" />
 
-        {/* Logo oficial por FUERA de la tarjeta sobre el fondo oscuro */}
-        <div className="mb-5 relative z-10 flex justify-center shrink-0">
-          <img src="/Logo.png" alt="TecStars Logo" className="h-11 sm:h-12 object-contain drop-shadow-lg" />
+        {/* Logo oficial sobre fondo oscuro */}
+        <div className="mb-4 relative z-10 flex justify-center shrink-0">
+          <img src="/Logo.png" alt="TecStars Logo" className="h-10 sm:h-12 object-contain drop-shadow-lg" />
         </div>
 
-        {/* Tarjeta limpia de confirmación */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative z-10 border border-gray-100 animate-slideUpFade">
+        {/* Tarjeta de confirmación con Neuromarketing PAS */}
+        <div className="bg-white rounded-3xl p-5 sm:p-7 max-w-md w-full text-center shadow-2xl relative z-10 border border-gray-100 animate-slideUpFade space-y-4">
 
-          {/* 1. Título encima del check */}
-          <h2 className="text-2xl font-bold mb-3" style={{ color: COLORS.purple1, fontFamily: "'Fredoka', sans-serif" }}>
-            ¡Misión Iniciada!
-          </h2>
+          {/* Header de Confirmación */}
+          <div>
+            <div className="mb-2 flex justify-center relative">
+              <div className="absolute inset-0 bg-green-100 rounded-full blur-xl animate-pulse" />
+              <CheckCircle2 size={56} className="text-[#52c41a] relative z-10" />
+            </div>
 
-          {/* 2. Check Verde */}
-          <div className="mb-4 flex justify-center relative">
-            <div className="absolute inset-0 bg-green-100 rounded-full blur-xl animate-pulse"></div>
-            <CheckCircle2 size={64} className="text-[#52c41a] relative z-10" />
+            <h2 className="text-xl font-bold mb-1" style={{ color: COLORS.purple1, fontFamily: "'Fredoka', sans-serif" }}>
+              ¡Misión Iniciada, {formData.contactName}!
+            </h2>
+
+            {/* Sede Ubicación */}
+            <div className="inline-flex flex-col items-center justify-center bg-[#050521] text-[#7588e0] px-4 py-2 rounded-2xl text-xs font-bold my-2 border border-[#7588e0]/30 text-center w-full">
+              <span className="flex items-center gap-1.5 justify-center">
+                <MapPin size={13} className="text-[#7588e0]" />
+                <span>SEDE PRESENCIAL:</span>
+              </span>
+              <span className="block mt-0.5 text-center text-xs text-white font-extrabold">
+                FRIMADI INTERNATIONAL MONTESSORI
+              </span>
+            </div>
+
+            <p className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed mt-2">
+              Hemos recibido tus datos correctamente. En breve te contactaremos por WhatsApp al <span className="font-extrabold text-[#050521] whitespace-nowrap">{formData.contactPhone}</span> para coordinar tu horario.
+            </p>
           </div>
 
-          {/* 3. Ubicación con Spans en bloque y centrados */}
-          <div className="inline-flex flex-col items-center justify-center bg-[#050521] text-[#7588e0] px-4 py-2 rounded-2xl text-xs font-bold mb-5 border border-[#7588e0]/30 text-center">
-            <span className="flex items-center gap-1.5 justify-center">
-              <MapPin size={14} className="text-[#7588e0]" />
-              <span>SEDE PRESENCIAL:</span>
-            </span>
-            <span className="block mt-0.5 text-center">
-              FRIMADI INTERNATIONAL MONTESSORI
-            </span>
+          {/* SECCIÓN NEUROMARKETING PAS: VALIDACIÓN DE DECISIÓN DE COMPRA */}
+          <div className="border-t border-gray-100 text-left space-y-3">
+            
+            <div className="text-center mb-5">
+              <span className="bg-[#3a369c]/10 text-[#3a369c] text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                Por qué tomaste la mejor decisión hoy
+              </span>
+            </div>
+
+            {/* 1. EL PROBLEMA (Lo que dejaste atrás) */}
+            <div className="bg-red-50/80 border border-red-100 rounded-2xl p-3.5 space-y-2 animate-slideInLeft animation-delay-300">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle size={12} />
+                </div>
+                <h3 className="font-extrabold text-xs text-red-950 uppercase tracking-wider">
+                  Lo que estás dejando atrás:
+                </h3>
+              </div>
+              <ul className="space-y-1.5 text-xs text-gray-700 font-medium pl-1">
+                <li className="flex items-start gap-1.5">
+                  <span className="text-red-500 font-bold shrink-0">•</span>
+                  <span>Uso pasivo del iPad y pantallas consumiendo videos sin propósito.</span>
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <span className="text-red-500 font-bold shrink-0">•</span>
+                  <span>Juegos en línea descontrolados y aislamiento de la convivencia real.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 2. LA AGITACIÓN (La realidad evitada) */}
+            <div className="bg-[#050521] border border-[#7588e0]/30 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden animate-slideInRight animation-delay-600">
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#3a369c] rounded-full blur-2xl opacity-50 pointer-events-none" />
+              <p className="text-xs leading-relaxed text-gray-200 font-medium relative z-10">
+                Evitaste que este año tu hijo tirara <strong className="text-[#ffc94d]">más de 1,000 horas a la basura</strong> frente a una pantalla gastando dinero en monedas virtuales. <span className="text-[#7588e0] font-bold block mt-1">Hoy elegiste transformar su futuro en lugar de dejarlo ser solo un consumidor.</span>
+              </p>
+            </div>
+
+            {/* 3. LA SOLUCIÓN (La transformación TecStars) */}
+            <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3.5 space-y-2 animate-slideInLeft animation-delay-900">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Sparkles size={12} />
+                </div>
+                <h3 className="font-extrabold text-xs text-emerald-950 uppercase tracking-wider">
+                  La transformación de tu peque en TecStars:
+                </h3>
+              </div>
+              <div className="space-y-1.5 text-xs text-gray-800 font-medium">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 size={14} className="text-[#52c41a] shrink-0 mt-0.5" />
+                  <span><strong className="text-[#050521]">De consumidor a Creador:</strong> Crear sus propios videojuegos y código.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 size={14} className="text-[#52c41a] shrink-0 mt-0.5" />
+                  <span><strong className="text-[#050521]">Socialización real:</strong> Amigos de su edad en un ambiente presencial seguro.</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* 4. Texto Descriptivo */}
-          <p className="text-gray-700 mb-6 font-medium text-xs sm:text-sm leading-relaxed">
-            ¡Hola <span className="text-[#3a369c] font-bold">{formData.contactName}</span>! Hemos recibido tus datos. En breve, nuestra base estelar te enviará un WhatsApp al <span className="font-bold text-[#050521] whitespace-nowrap">{formData.contactPhone}</span> para agendar la fecha y horario que más se te acomode.
-          </p>
+          {/* Trigger de WhatsApp Instantáneo */}
+          <div className="pt-2">
+            <a
+              href={`https://wa.me/529981234567?text=${encodeURIComponent(
+                `Hola TecStars, acabo de registrar a mi hijo para la clase presencial en Cumbres Cancún.`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-white transition-all transform hover:scale-[1.01] shadow-lg animate-pulse"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              <span>Enviar WhatsApp Directo Ahora</span>
+              <ChevronRight size={16} />
+            </a>
+          </div>
 
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider border-t border-gray-100 pt-3">
+          <p className="text-xs text-gray-400 font-bold uppercase tracking-wider border-t border-gray-100 pt-3">
             TecStars Cancún • El futuro se programa hoy
           </p>
         </div>
@@ -274,19 +258,20 @@ export default function App() {
     );
   }
 
+  // -------------------------------------------------------------
+  // VISTA 2: DESCALIFICADO (FUERA DE PRESUPUESTO / UBICACIÓN)
+  // -------------------------------------------------------------
   if (isDisqualified) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-start pt-8 sm:pt-12 lg:pt-16 p-4 relative overflow-hidden" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
         <DynamicBackground />
-        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521] pointer-events-none"></div>
+        <div className="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#3a369c] via-[#050521] to-[#050521] pointer-events-none" />
 
-        {/* Logo oficial por FUERA de la tarjeta sobre el fondo oscuro */}
         <div className="mb-4 relative z-10 flex justify-center shrink-0">
           <img src="/Logo.png" alt="TecStars Logo" className="h-10 sm:h-11 object-contain drop-shadow-md" />
         </div>
 
         <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl relative z-10 border border-gray-100">
-
           <div className="inline-flex items-center gap-1.5 bg-[#f8fafc] text-[#565168] px-3 py-1 rounded-full text-xs font-semibold mb-4 border border-gray-200">
             <MapPin size={13} className="text-[#3a369c]" /> Sede Cumbres Cancún
           </div>
@@ -309,16 +294,18 @@ export default function App() {
     );
   }
 
+  // -------------------------------------------------------------
+  // VISTA 3: EMBUDO MULTIPASO PRINCIPAL
+  // -------------------------------------------------------------
   return (
     <div className="min-h-screen w-screen flex flex-col md:flex-row overflow-y-auto relative" style={{ backgroundColor: '#040416', fontFamily: "'Montserrat', sans-serif" }}>
       <DynamicBackground />
 
-      {/* Panel Lateral Izquierdo (Branding Limpio) */}
+      {/* Panel Lateral Izquierdo (Desktop Branding) */}
       <div className="hidden md:flex flex-col justify-between w-[38%] max-w-sm lg:max-w-md p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl shrink-0 h-auto min-h-screen" style={{ backgroundColor: COLORS.darkBlue }}>
 
-        {/* Fondo visual galáctico */}
-        <div className="absolute top-[-10%] right-[-10%] w-72 h-72 bg-[#3a369c] rounded-full mix-blend-screen filter blur-[70px] opacity-70 animate-pulse-slow"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-[#7588e0] rounded-full mix-blend-screen filter blur-[90px] opacity-40"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-72 h-72 bg-[#3a369c] rounded-full mix-blend-screen filter blur-[70px] opacity-70 animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-[#7588e0] rounded-full mix-blend-screen filter blur-[90px] opacity-40" />
 
         <div className="relative z-10">
           <div className="mb-6">
@@ -329,7 +316,6 @@ export default function App() {
             />
           </div>
 
-          {/* Badge Destacado de Ubicación */}
           <div className="inline-flex items-center gap-1.5 bg-[#3a369c]/60 border border-[#7588e0]/40 px-3.5 py-1.5 rounded-full mb-6 backdrop-blur-md">
             <Navigation size={13} className="text-[#ffc94d] animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider text-white">
@@ -345,15 +331,14 @@ export default function App() {
           </p>
 
           <div className="space-y-3.5">
-            {/* Ubicación Frimadi International Montessori */}
             <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-xl backdrop-blur-md border border-white/15">
               <div className="w-11 h-11 rounded-xl bg-[#ffc94d] text-[#050521] flex items-center justify-center shadow-md shrink-0 font-bold">
                 <MapPin size={22} />
               </div>
               <div>
-                <p className="font-extrabold text-[10px] text-[#ffc94d] uppercase tracking-wider">UBICACIÓN EXCLUSIVA</p>
+                <p className="font-extrabold text-xs text-[#ffc94d] uppercase tracking-wider">UBICACIÓN EXCLUSIVA</p>
                 <p className="font-bold text-sm text-white">Frimadi International Montessori</p>
-                <p className="text-[11px] text-gray-300 font-medium">Clases 100% presenciales</p>
+                <p className="text-xs text-gray-300 font-medium">Clases 100% presenciales</p>
               </div>
             </div>
 
@@ -362,31 +347,30 @@ export default function App() {
                 <DollarSign size={20} className="text-[#050521]" />
               </div>
               <div>
-                <p className="font-bold text-[10px] text-[#7588e0] uppercase tracking-wider">INVERSIÓN REGULAR</p>
+                <p className="font-bold text-xs text-[#7588e0] uppercase tracking-wider">INVERSIÓN REGULAR</p>
                 <span className="font-semibold text-xs text-white">$1,500 ins. + $2,500/mes (2 clases/sem)</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer del Sidebar Limpio */}
         <div className="relative z-10 pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-semibold text-gray-300 opacity-80 mt-6">
           <ShieldCheck size={16} className="text-[#7588e0]" />
           <span>Información 100% confidencial y protegida</span>
         </div>
       </div>
 
-      {/* Panel Derecho (Alineado Top-Down con Scroll Vertical Habilitado) */}
+      {/* Panel Derecho (Formulario) */}
       <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-8 relative overflow-y-auto min-h-full">
 
-        {/* Header Móvil con Fondo Oscuro Transparente y Logo.png en blanco */}
+        {/* Header Móvil */}
         <div className="md:hidden w-full max-w-md flex flex-col items-center mb-4 pt-6 pb-4 px-4.5 text-center bg-[#050521]/60 backdrop-blur-md rounded-2xl border border-[#7588e0]/30 shadow-md shrink-0">
           <img
             src="/Logo.png"
             alt="TecStars Logo"
             className="h-9 object-contain mb-2.5 drop-shadow-sm"
           />
-          <div className="inline-flex items-center gap-1.5 bg-white/10 text-white px-3.5 py-1 rounded-full text-[11px] font-bold border border-[#7588e0]/40">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 text-white px-3.5 py-1 rounded-full text-xs font-bold border border-[#7588e0]/40">
             <MapPin size={13} className="text-[#ffc94d]" />
             SEDE: FRIMADI INTERNATIONAL MONTESSORI
           </div>
@@ -395,7 +379,7 @@ export default function App() {
         {/* Tarjeta del Formulario */}
         <div className="w-full max-w-md lg:max-w-lg bg-white rounded-3xl p-5 sm:p-7 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 relative flex flex-col justify-start my-auto">
 
-          {/* Fila Fija Superior: Botón Volver + Barra de Progreso */}
+          {/* Fila Fija Superior: Volver + Barra de Progreso */}
           <div className="flex items-center gap-3 mb-4 shrink-0">
             {currentStep > 0 ? (
               <button
@@ -414,9 +398,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Cabecera Fija del Paso (Paso X de 5, Título y Subtítulo) */}
+          {/* Cabecera del Paso */}
           <div className="mb-4 shrink-0 min-h-[68px] flex flex-col justify-start">
-            <span className="text-[11px] font-bold text-[#7588e0] uppercase tracking-wider block mb-0.5">
+            <span className="text-xs font-bold text-[#7588e0] uppercase tracking-wider block mb-0.5">
               Paso {currentStep + 1} de {FORM_STEPS.length}
             </span>
             <h2 className="text-xl sm:text-2xl font-bold mb-1 text-[#050521] leading-snug" style={{ fontFamily: "'Fredoka', sans-serif" }}>
@@ -427,25 +411,7 @@ export default function App() {
             </p>
           </div>
 
-          {/* Banner Visual Informativo de Ubicación Cumbres Cancún en Paso 3 */}
-          {currentStepData.field === 'commitment' && (
-            <div className="mb-4 bg-indigo-50/90 border-2 border-[#7588e0]/30 p-3 rounded-xl flex items-start gap-3 animate-slideUpFade shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-[#3a369c] text-white flex items-center justify-center shrink-0 shadow-sm">
-                <MapPin size={18} className="text-[#ffc94d]" />
-              </div>
-              <div>
-                <p className="font-extrabold text-xs text-[#050521] flex items-center gap-1.5">
-                  SEDE CUMBRES CANCÚN
-                  <span className="bg-[#3a369c] text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase font-bold">Presencial</span>
-                </p>
-                <p className="text-[11px] text-gray-600 font-medium leading-snug mt-0.5">
-                  Precio regular: <strong>$1,500 inscripción</strong> + <strong>$2,500 al mes</strong> (8 clases/mes).
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Área Principal de Opciones (Top-Down) */}
+          {/* Área Principal de Opciones */}
           <div className="flex-1 flex flex-col justify-start">
             {currentStepData.type === 'radio' && (
               <div className="space-y-2.5 animate-slideUpFade">
@@ -483,13 +449,12 @@ export default function App() {
                           {option.label}
                         </h3>
                         {option.description && (
-                          <p className="text-[11px] mt-0.5 font-medium leading-tight text-gray-500">
+                          <p className="text-xs mt-0.5 font-medium leading-tight text-gray-500">
                             {option.description}
                           </p>
                         )}
                       </div>
 
-                      {/* Radio Circle */}
                       <div className={`
                         absolute right-3.5 w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-colors
                         ${isSelected ? `border-[#3a369c]` : 'border-gray-200 group-hover:border-[#7588e0]'}
@@ -502,10 +467,9 @@ export default function App() {
               </div>
             )}
 
-            {/* Renderizado de Paso 3: Aparta su espacio (Unificado) */}
+            {/* Paso 3: Aparta su espacio */}
             {currentStepData.type === 'reservation' && (
               <div className="space-y-3.5 animate-slideUpFade">
-                {/* Renglones Informativos Limpios (Sin contenedor, bordes ni íconos) */}
                 <div className="space-y-2 text-xs sm:text-sm py-1">
                   <p className="text-gray-800 leading-relaxed">
                     <strong className="text-[#050521] font-extrabold">Ubicación:</strong> Frimadi International Montessori
@@ -540,7 +504,7 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* Checkbox de Beca Fundadores (3 vacantes) */}
+                {/* Checkbox Beca Fundadores */}
                 <label className={`
                   relative flex items-center p-3 sm:p-3.5 rounded-2xl cursor-pointer border-2 transition-all duration-200 select-none
                   ${hasScholarship
@@ -559,13 +523,13 @@ export default function App() {
                         {hasScholarship ? 'Beca Aplicada' : 'Aplica a Beca Fundadores'}
                       </span>
                       <span key={displayVacancies} className={`
-                        text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider transition-all duration-500
+                        text-white text-xs font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider transition-all duration-500
                         ${displayVacancies <= 2 || vacancies === 3 ? 'bg-red-600 animate-pulse scale-105 shadow-sm' : 'bg-red-500'}
                       `}>
                         {displayVacancies} vacantes
                       </span>
                     </div>
-                    <p className="text-[11px] text-amber-900/90 font-medium mt-0.5 leading-tight">
+                    <p className="text-xs text-amber-900/90 font-medium mt-0.5 leading-tight">
                       {hasScholarship
                         ? '¡Beca activa! Mensualidad a $2,000 e Inscripción a $500.'
                         : 'Marca la casilla para aplicar a la Beca Fundadores'}
@@ -573,9 +537,9 @@ export default function App() {
                   </div>
                 </label>
 
-                {/* Opciones de apartar el espacio */}
+                {/* Opciones para apartar */}
                 <div className="space-y-2 pt-1">
-                  <label className="block text-[11px] font-bold text-[#050521] uppercase tracking-wider ml-1">
+                  <label className="block text-xs font-bold text-[#050521] uppercase tracking-wider ml-1">
                     Opciones para apartar el espacio
                   </label>
 
@@ -618,7 +582,7 @@ export default function App() {
                             {option.label}
                           </span>
                           {isDisabled && (
-                            <span className="text-[11px] font-semibold text-red-500 ml-2 block sm:inline">
+                            <span className="text-xs font-semibold text-red-500 ml-2 block sm:inline">
                               {option.disabledText}
                             </span>
                           )}
@@ -633,100 +597,16 @@ export default function App() {
               </div>
             )}
 
-            {/* Renderizado de Paso 4: PAS (Problem, Agitation, Solution) */}
-            {currentStepData.type === 'pas' && (
-              <div className="space-y-3.5 relative">
-
-                {/* 1. EL PROBLEMA (Entrada desde la izquierda) */}
-                <div className="bg-red-50/70 border border-red-100 rounded-2xl p-3.5 space-y-2.5 animate-slideInLeft animation-delay-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                      <AlertTriangle size={14} />
-                    </div>
-                    <h3 className="font-extrabold text-xs sm:text-sm text-red-950 uppercase tracking-wider">
-                      El problema actual con las pantallas
-                    </h3>
-                  </div>
-                  <ul className="space-y-2 text-xs text-gray-700 font-medium pl-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-500 font-bold shrink-0 mt-0.5">•</span>
-                      <span>Pasa horas en un uso pasivo frente al iPad, consumiendo videos sin aprender nada útil.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-500 font-bold shrink-0 mt-0.5">•</span>
-                      <span>Juega en línea con desconocidos (Roblox, Minecraft) sin supervisión en un entorno que no controlas.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-500 font-bold shrink-0 mt-0.5">•</span>
-                      <span>Pierde la oportunidad de socializar en el mundo real, aislándose cada vez más.</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* 2. LA AGITACIÓN (Entrada desde la derecha con pausa para leer) */}
-                <div className="bg-[#050521] border border-[#7588e0]/30 rounded-2xl p-3.5 sm:p-4 text-white shadow-md relative overflow-hidden animate-slideInRight animation-delay-500">
-                  <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#3a369c] rounded-full blur-2xl opacity-50 pointer-events-none"></div>
-                  <p className="text-xs leading-relaxed text-gray-200 font-medium relative z-10">
-                    Si no tomas acción, este año tu hijo pasará <strong className="text-[#ffc94d]">más de 1,000 horas frente a una pantalla</strong> y tú habrás gastado miles de pesos en Robux y pases de batalla sin ningún retorno. Tiempo y dinero que podrías invertir en prepararlo para el mañana. <span className="text-[#7588e0] font-bold block mt-1">¿De verdad quieres que siga siendo solo un consumidor en lugar de un creador?</span>
-                  </p>
-                </div>
-
-                {/* 3. LA SOLUCIÓN (Entrada desde la izquierda tras agitación) */}
-                <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-2.5 animate-slideInLeft animation-delay-900">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                      <Sparkles size={14} />
-                    </div>
-                    <h3 className="font-extrabold text-xs sm:text-sm text-emerald-950 uppercase tracking-wider">
-                      La Solución: El Ecosistema TecStars
-                    </h3>
-                  </div>
-                  <div className="space-y-2 text-xs text-gray-800 font-medium">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
-                      <span><strong className="text-[#050521] font-bold">Creadores, no consumidores:</strong> Pasa de solo jugar videojuegos a aprender a programarlos.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
-                      <span><strong className="text-[#050521] font-bold">Amigos reales:</strong> Convive presencialmente en un entorno seguro y trabaja sus habilidades sociales.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
-                      <span><strong className="text-[#050521] font-bold">Habilidades del mañana:</strong> Domina la tecnología y el pensamiento lógico mientras se divierte al máximo.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
-                      <span><strong className="text-[#050521] font-bold">Inversión inteligente:</strong> El dinero que gastabas en monedas virtuales, ahora construye su futuro.</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Botón para avanzar al paso 5 (Contacto) - Sticky flotante al hacer scroll en Mobile */}
-                <div className="sticky bottom-2 sm:relative sm:bottom-0 z-30 pt-2 pb-1 bg-white/90 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none rounded-xl animate-slideUpFade animation-delay-1000">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(4)}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_20px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 cursor-pointer"
-                    style={{ backgroundColor: COLORS.purple1 }}
-                  >
-                    Asegurar mi Beca y Clase de Diagnóstico <ChevronRight size={18} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Renderizado del Paso Final (Contacto) */}
+            {/* Paso 4: Formulario de Contacto */}
             {currentStepData.type === 'contact' && (
               <form onSubmit={handleSubmit} className="space-y-4 animate-slideUpFade">
-
-                {/* Badge Recordatorio de Ubicación */}
                 <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-xs font-semibold text-gray-700">
                   <MapPin size={15} className="text-[#3a369c] shrink-0" />
                   Sede de diagnóstico: Frimadi International Montessori
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-bold text-[#050521] ml-1 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-[#050521] ml-1 uppercase tracking-wider">
                     Nombre del papá, mamá o tutor
                   </label>
                   <div className="relative group">
@@ -745,7 +625,7 @@ export default function App() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-bold text-[#050521] ml-1 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-[#050521] ml-1 uppercase tracking-wider">
                     Tu WhatsApp (a 10 dígitos)
                   </label>
                   <div className="relative group">
@@ -772,7 +652,7 @@ export default function App() {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_16px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 mt-4"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_16px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 mt-4 cursor-pointer"
                   style={{ backgroundColor: COLORS.purple1 }}
                 >
                   Confirmar y Recibir Horarios por WhatsApp <ChevronRight size={18} />
@@ -781,15 +661,14 @@ export default function App() {
             )}
           </div>
 
-          {/* Footer Fijo en la tarjeta */}
+          {/* Footer Fijo */}
           <div className="mt-4 text-center border-t border-gray-100 pt-3 shrink-0">
-            <p className="text-[#565168] text-[11px] font-medium flex items-center justify-center gap-1">
+            <p className="text-[#565168] text-xs font-medium flex items-center justify-center gap-1">
               <MapPin size={11} className="text-[#3a369c]" /> Frimadi International Montessori
             </p>
           </div>
 
         </div>
-
       </div>
     </div>
   );
