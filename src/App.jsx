@@ -9,7 +9,6 @@ import {
   CalendarDays,
   AlertTriangle,
   Navigation,
-  DollarSign,
   ShieldCheck,
   Sparkles
 } from 'lucide-react';
@@ -166,7 +165,7 @@ export default function App() {
               </span>
             </div>
 
-            <p className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed mt-2">
+            <p className="text-gray-700 text-xs font-medium leading-relaxed mt-2">
               Hemos recibido tus datos correctamente. En breve te contactaremos por WhatsApp al <span className="font-extrabold text-[#050521] whitespace-nowrap">{formData.contactPhone}</span> para coordinar tu horario.
             </p>
           </div>
@@ -242,7 +241,7 @@ export default function App() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-white transition-all transform hover:scale-[1.01] shadow-lg animate-pulse"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-lg animate-pulse"
               style={{ backgroundColor: '#25D366' }}
             >
               <span>Enviar WhatsApp Directo Ahora</span>
@@ -279,7 +278,7 @@ export default function App() {
           <h2 className="text-xl font-bold mb-2" style={{ color: COLORS.darkBlue, fontFamily: "'Fredoka', sans-serif" }}>
             Gracias por tu interés
           </h2>
-          <p className="text-gray-600 mb-5 font-medium text-xs sm:text-sm leading-relaxed">
+          <p className="text-gray-600 mb-5 font-medium text-xs leading-relaxed">
             Nuestras clases son 100% presenciales en Cumbres Cancún y requieren esta inversión inicial ($1,500 inscripción y $2,500 mensualidad). Te invitamos a seguirnos en Instagram para enterarte de futuros talleres y becas.
           </p>
           <button
@@ -326,29 +325,42 @@ export default function App() {
           <h1 className="text-2xl lg:text-3xl font-bold leading-snug mb-3" style={{ fontFamily: "'Fredoka', sans-serif" }}>
             Descubre si tu hijo es un futuro <span className="text-[#7588e0]">creador</span>.
           </h1>
-          <p className="text-xs lg:text-sm opacity-90 mb-6 font-medium leading-relaxed">
+          <p className="text-xs opacity-90 mb-6 font-medium leading-relaxed">
             Completa este diagnóstico para apartar su lugar en la próxima clase de prueba presencial.
           </p>
 
           <div className="space-y-3.5">
-            <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-xl backdrop-blur-md border border-white/15">
+            {/* Recuadro 1: Ubicación Exclusiva */}
+            <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-2xl backdrop-blur-md border border-white/15">
               <div className="w-11 h-11 rounded-xl bg-[#ffc94d] text-[#050521] flex items-center justify-center shadow-md shrink-0 font-bold">
                 <MapPin size={22} />
               </div>
               <div>
-                <p className="font-extrabold text-xs text-[#ffc94d] uppercase tracking-wider">UBICACIÓN EXCLUSIVA</p>
+                <p className="font-extrabold text-xs text-[#ffc94d] uppercase tracking-wider">SEDE EXCLUSIVA CANCÚN</p>
                 <p className="font-bold text-sm text-white">Frimadi International Montessori</p>
                 <p className="text-xs text-gray-300 font-medium">Clases 100% presenciales</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-xl backdrop-blur-md border border-white/10">
-              <div className="w-11 h-11 rounded-xl bg-[#7588e0] flex items-center justify-center shadow-lg shrink-0">
-                <DollarSign size={20} className="text-[#050521]" />
+            {/* Recuadro 2: Beca Fundadores (Estilo Limpio, Elegante & Sobrio) */}
+            <div className="flex items-center gap-3.5 bg-white/10 p-3.5 rounded-2xl backdrop-blur-md border border-white/15">
+              <div className="w-11 h-11 rounded-xl bg-[#7588e0] text-[#050521] flex items-center justify-center shadow-md shrink-0 font-bold">
+                <Sparkles size={20} />
               </div>
               <div>
-                <p className="font-bold text-xs text-[#7588e0] uppercase tracking-wider">INVERSIÓN REGULAR</p>
-                <span className="font-semibold text-xs text-white">$1,500 ins. + $2,500/mes (2 clases/sem)</span>
+                <div className="flex items-center gap-2">
+                  <p className="font-extrabold text-xs text-[#7588e0] uppercase tracking-wider">BECA FUNDADORES ACTIVA</p>
+                  <span
+                    key={displayVacancies}
+                    className="bg-[#3a369c] text-white text-xs px-2 py-0.5 rounded-full font-bold transition-all duration-300 animate-pricePop inline-block"
+                  >
+                    {displayVacancies} {displayVacancies === 1 ? 'vacante' : 'vacantes'}
+                  </span>
+                </div>
+                <p className="font-bold text-sm text-white mt-0.5">¿Calificas para Beca Especial?</p>
+                <p className="text-xs text-gray-300 font-medium leading-tight">
+                  Descubre dentro del embudo cómo ahorrar hasta <strong className="text-white font-bold">$1,000 en inscripción</strong>.
+                </p>
               </div>
             </div>
           </div>
@@ -406,7 +418,7 @@ export default function App() {
             <h2 className="text-xl sm:text-2xl font-bold mb-1 text-[#050521] leading-snug" style={{ fontFamily: "'Fredoka', sans-serif" }}>
               {currentStepData.title}
             </h2>
-            <p className="text-xs sm:text-sm text-[#565168] font-medium leading-relaxed">
+            <p className="text-xs text-[#565168] font-medium leading-relaxed">
               {currentStepData.subtitle}
             </p>
           </div>
@@ -470,7 +482,7 @@ export default function App() {
             {/* Paso 3: Aparta su espacio */}
             {currentStepData.type === 'reservation' && (
               <div className="space-y-3.5 animate-slideUpFade">
-                <div className="space-y-2 text-xs sm:text-sm py-1">
+                <div className="space-y-2 text-xs py-1">
                   <p className="text-gray-800 leading-relaxed">
                     <strong className="text-[#050521] font-extrabold">Ubicación:</strong> Frimadi International Montessori
                   </p>
@@ -479,11 +491,11 @@ export default function App() {
                     <strong className="text-[#050521] font-extrabold">Mensualidad:</strong>
                     {hasScholarship ? (
                       <span className="inline-flex items-center gap-2">
-                        <span key="pop-mensualidad" className="font-extrabold text-[#16c722] text-base inline-block animate-pricePop">$2,000</span>
+                        <span key="pop-mensualidad" className="font-extrabold text-[#16c722] text-sm inline-block animate-pricePop">$2,000</span>
                         <span className="line-through text-gray-400 text-xs font-semibold">$2,500</span>
                       </span>
                     ) : (
-                      <span className="font-extrabold text-[#3a369c] text-base">$2,500</span>
+                      <span className="font-extrabold text-[#3a369c] text-sm">$2,500</span>
                     )}
                   </div>
 
@@ -491,11 +503,11 @@ export default function App() {
                     <strong className="text-[#050521] font-extrabold">Inscripción ÚNICA:</strong>
                     {hasScholarship ? (
                       <span className="inline-flex items-center gap-2">
-                        <span key="pop-inscripcion" className="font-extrabold text-[#16c722] text-base inline-block animate-pricePop">$500</span>
+                        <span key="pop-inscripcion" className="font-extrabold text-[#16c722] text-sm inline-block animate-pricePop">$500</span>
                         <span className="line-through text-gray-400 text-xs font-semibold">$1,500</span>
                       </span>
                     ) : (
-                      <span className="font-extrabold text-[#3a369c] text-base">$1,500</span>
+                      <span className="font-extrabold text-[#3a369c] text-sm">$1,500</span>
                     )}
                   </div>
 
@@ -519,7 +531,7 @@ export default function App() {
                   />
                   <div className="ml-3 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-extrabold text-xs sm:text-sm text-[#050521] flex items-center gap-1">
+                      <span className="font-extrabold text-sm text-[#050521] flex items-center gap-1">
                         {hasScholarship ? 'Beca Aplicada' : 'Aplica a Beca Fundadores'}
                       </span>
                       <span key={displayVacancies} className={`

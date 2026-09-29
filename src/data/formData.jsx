@@ -87,7 +87,11 @@ export const FORM_STEPS = [
   {
     id: 4,
     title: "¡Misión casi lista! Déjanos tus datos",
-    subtitle: "Te contactaremos desde TecStars por WhatsApp para enviarte los horarios.",
+    subtitle: (
+      <span>
+        Coordinaremos la clase por WhatsApp. <strong className="text-[#3a369c] font-bold">¡Pronto tu peque aprenderá a crear sitios como este! 🚀</strong>
+      </span>
+    ),
     type: "contact",
     field: "contact"
   }
