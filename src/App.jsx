@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   User,
   Phone,
+  Mail,
   MapPin,
   CalendarDays,
   AlertTriangle,
@@ -14,6 +15,26 @@ import {
 } from 'lucide-react';
 import DynamicBackground from './components/DynamicBackground';
 import { COLORS, FORM_STEPS } from './data/formData';
+
+// Auxiliar para obtener valor de galletas (cookies)
+const getCookie = (name) => {
+  if (typeof document === 'undefined') return '';
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift() || '';
+  return '';
+};
+
+// Auxiliar para obtener la IP pública del cliente
+const getClientIp = async () => {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    return data.ip || '';
+  } catch (err) {
+    return '';
+  }
+};
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -25,8 +46,10 @@ export default function App() {
     commitment: 'regular',
     urgency: '',
     contactName: '',
-    contactPhone: ''
+    contactPhone: '',
+    contactEmail: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isDisqualified, setIsDisqualified] = useState(false);
   const [error, setError] = useState('');
@@ -92,21 +115,88 @@ export default function App() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    if (!formData.contactName.trim()) {
-      setError('Por favor, ingresa tu nombre completo o de tutor.');
-      return;
-    }
-    const cleanPhone = formData.contactPhone.replace(/\D/g, '');
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setError('Por favor, ingresa un número de WhatsApp válido a 10 dígitos.');
+    // Validación Nombre: al menos 2 letras
+    const cleanName = formData.contactName.trim();
+    if (!cleanName || cleanName.length < 2) {
+      setError('Por favor, ingresa tu nombre completo (mínimo 2 letras).');
       return;
     }
 
-    console.log("Lead Capturado (TecStars Cumbres Cancún):", formData);
-    setIsSubmitted(true);
+    // Validación Teléfono: exactamente 10 dígitos (ignorando laves/espacios)
+    let cleanPhone = formData.contactPhone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('52') && cleanPhone.length === 12) {
+      cleanPhone = cleanPhone.slice(2);
+    }
+    if (cleanPhone.length !== 10) {
+      setError('Por favor, ingresa un número de WhatsApp válido de 10 dígitos.');
+      return;
+    }
+
+    // Validación Correo Electrónico
+    const cleanEmail = formData.contactEmail.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      const clientIp = await getClientIp();
+      const fbc = getCookie('_fbc');
+      const fbp = getCookie('_fbp');
+      const fullPhone = `+52${cleanPhone}`;
+
+      const payload = {
+        age: formData.age,
+        interest: formData.interest,
+        commitment: formData.commitment,
+        urgency: formData.urgency,
+        hasScholarship: hasScholarship,
+        contactName: cleanName,
+        contactPhone: fullPhone,
+        contactEmail: cleanEmail,
+        user_agent: navigator.userAgent || '',
+        fbc: fbc || '',
+        fbp: fbp || '',
+        event_ID: eventId,
+        Client_IP: clientIp || '',
+        pageurl: window.location.href || ''
+      };
+
+      // Enviar datos al Webhook de Make.com
+      await fetch('https://hook.us2.make.com/cna04kbka9ep5ab1ox4o3vlq5xn24vyb', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      // Disparar Evento Lead en Meta Pixel
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Lead', {
+          content_name: 'Registro Clase Muestra TecStars',
+          value: hasScholarship ? 2000 : 2500,
+          currency: 'MXN'
+        }, { eventID: eventId });
+      }
+
+      console.log("Payload enviado con éxito:", payload);
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error("Error al procesar el webhook:", err);
+      // Redirigir a la pantalla de éxito aún ante fallos de red
+      setIsSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const ProgressBar = () => {
@@ -617,6 +707,7 @@ export default function App() {
                   Sede de diagnóstico: Frimadi International Montessori
                 </div>
 
+                {/* Campo: Nombre del Tutor */}
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-[#050521] ml-1 uppercase tracking-wider">
                     Nombre del papá, mamá o tutor
@@ -636,20 +727,43 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Campo: Teléfono WhatsApp con +52 por defecto */}
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-[#050521] ml-1 uppercase tracking-wider">
-                    Tu WhatsApp (a 10 dígitos)
+                    Tu WhatsApp (10 dígitos)
                   </label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <div className="relative group flex items-center">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none gap-1.5">
                       <Phone size={18} className="text-gray-400 group-focus-within:text-[#3a369c] transition-colors" />
+                      <span className="text-xs font-extrabold text-[#3a369c] border-r border-gray-200 pr-2">+52</span>
                     </div>
                     <input
                       type="tel"
                       name="contactPhone"
                       value={formData.contactPhone}
                       onChange={handleContactChange}
-                      placeholder="Ej. 998 123 4567"
+                      maxLength={14}
+                      placeholder="998 123 4567"
+                      className="w-full pl-20 pr-3.5 py-3 rounded-xl border-2 border-gray-100 focus:border-[#3a369c] focus:ring-4 focus:ring-[#3a369c]/10 transition-all outline-none text-gray-800 font-semibold text-sm placeholder-gray-400 bg-gray-50 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Campo: Correo Electrónico */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-[#050521] ml-1 uppercase tracking-wider">
+                    Correo Electrónico
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <Mail size={18} className="text-gray-400 group-focus-within:text-[#3a369c] transition-colors" />
+                    </div>
+                    <input
+                      type="email"
+                      name="contactEmail"
+                      value={formData.contactEmail}
+                      onChange={handleContactChange}
+                      placeholder="ejemplo@correo.com"
                       className="w-full pl-10 pr-3.5 py-3 rounded-xl border-2 border-gray-100 focus:border-[#3a369c] focus:ring-4 focus:ring-[#3a369c]/10 transition-all outline-none text-gray-800 font-semibold text-sm placeholder-gray-400 bg-gray-50 focus:bg-white"
                     />
                   </div>
@@ -664,10 +778,18 @@ export default function App() {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_16px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 mt-4 cursor-pointer"
+                  disabled={isSubmitting}
+                  className={`w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_16px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 mt-4 cursor-pointer ${isSubmitting ? 'opacity-70 cursor-wait' : ''}`}
                   style={{ backgroundColor: COLORS.purple1 }}
                 >
-                  Confirmar y Recibir Horarios por WhatsApp <ChevronRight size={18} />
+                  {isSubmitting ? (
+                    <span>Enviando diagnóstico...</span>
+                  ) : (
+                    <>
+                      <span>Confirmar y Recibir Horarios por WhatsApp</span>
+                      <ChevronRight size={18} />
+                    </>
+                  )}
                 </button>
               </form>
             )}
