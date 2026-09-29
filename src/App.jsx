@@ -22,7 +22,7 @@ const COLORS = {
 const FORM_STEPS = [
   {
     id: 1,
-    title: "¿Qué edad tiene tu futuro talento tecnológico?",
+    title: "¿Qué edad tiene tu pequeño amante de la tecnológia?",
     subtitle: "Personalizamos la experiencia según su etapa de desarrollo.",
     type: "radio",
     field: "age",
@@ -54,8 +54,15 @@ const FORM_STEPS = [
   },
   {
     id: 4,
+    title: "De consumidor pasivo a creador del futuro.",
+    subtitle: "Transforma su relación con las pantallas y asegura su desarrollo.",
+    type: "pas",
+    field: "pas"
+  },
+  {
+    id: 5,
     title: "¡Misión casi lista! Déjanos tus datos",
-    subtitle: "Te contactaremos desde TecStars por WhatsApp para enviarte los horarios.",
+    subtitle: "Te contactaremos desde TecStars por WhatsApp para enviarte los horarios y que tu peque pueda crear un sitio como este.",
     type: "contact",
     field: "contact"
   }
@@ -623,6 +630,86 @@ export default function App() {
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* Renderizado de Paso 4: PAS (Problem, Agitation, Solution) */}
+            {currentStepData.type === 'pas' && (
+              <div className="space-y-3.5 animate-slideUpFade">
+
+                {/* 1. EL PROBLEMA */}
+                <div className="bg-red-50/70 border border-red-100 rounded-2xl p-3.5 space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                      <AlertTriangle size={14} />
+                    </div>
+                    <h3 className="font-extrabold text-xs sm:text-sm text-red-950 uppercase tracking-wider">
+                      El problema actual con las pantallas
+                    </h3>
+                  </div>
+                  <ul className="space-y-2 text-xs text-gray-700 font-medium pl-1">
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 font-bold shrink-0 mt-0.5">•</span>
+                      <span>Pasa horas en un uso pasivo frente al iPad, consumiendo videos sin aprender nada útil.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 font-bold shrink-0 mt-0.5">•</span>
+                      <span>Juega en línea con desconocidos (Roblox, Minecraft) sin supervisión en un entorno que no controlas.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 font-bold shrink-0 mt-0.5">•</span>
+                      <span>Pierde la oportunidad de socializar en el mundo real, aislándose cada vez más.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* 2. LA AGITACIÓN */}
+                <div className="bg-[#050521] border border-[#7588e0]/30 rounded-2xl p-3.5 sm:p-4 text-white shadow-md relative overflow-hidden">
+                  <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#3a369c] rounded-full blur-2xl opacity-50 pointer-events-none"></div>
+                  <p className="text-xs leading-relaxed text-gray-200 font-medium relative z-10">
+                    Si no tomas acción, este año tu hijo pasará <strong className="text-[#ffc94d]">más de 1,000 horas frente a una pantalla</strong> y tú habrás gastado miles de pesos en Robux y pases de batalla sin ningún retorno. Tiempo y dinero que podrías invertir en prepararlo para el mañana. <span className="text-[#7588e0] font-bold block mt-1">¿De verdad quieres que siga siendo solo un consumidor en lugar de un creador?</span>
+                  </p>
+                </div>
+
+                {/* 3. LA SOLUCIÓN */}
+                <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                      <Sparkles size={14} />
+                    </div>
+                    <h3 className="font-extrabold text-xs sm:text-sm text-emerald-950 uppercase tracking-wider">
+                      La Solución: El Ecosistema TecStars
+                    </h3>
+                  </div>
+                  <div className="space-y-2 text-xs text-gray-800 font-medium">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
+                      <span><strong className="text-[#050521] font-bold">Creadores, no consumidores:</strong> Pasa de solo jugar videojuegos a aprender a programarlos.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
+                      <span><strong className="text-[#050521] font-bold">Amigos reales:</strong> Convive presencialmente en un entorno seguro y trabaja sus habilidades sociales.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
+                      <span><strong className="text-[#050521] font-bold">Habilidades del mañana:</strong> Domina la tecnología y el pensamiento lógico mientras se divierte al máximo.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={16} className="text-[#52c41a] shrink-0 mt-0.5" />
+                      <span><strong className="text-[#050521] font-bold">Inversión inteligente:</strong> El dinero que gastabas en monedas virtuales, ahora construye su futuro.</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botón para avanzar al paso 5 (Contacto) */}
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] shadow-[0_8px_16px_rgba(58,54,156,0.25)] hover:shadow-[0_12px_24px_rgba(58,54,156,0.35)] active:scale-95 mt-3"
+                  style={{ backgroundColor: COLORS.purple1 }}
+                >
+                  Asegurar mi Beca y Clase de Diagnóstico <ChevronRight size={18} />
+                </button>
               </div>
             )}
 
