@@ -37,14 +37,6 @@ export default function HomePage() {
       {/* Contenido Principal Hero (Visual Hierarchy Optimization) */}
       <main className="relative z-10 w-full max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto my-auto py-6 sm:py-10 text-center text-white space-y-6 sm:space-y-8">
 
-        {/* 1. Nivel Superior: Eyebrow Tag / Estado */}
-        <div className="inline-flex items-center gap-2 bg-[#3a369c]/50 border border-[#7588e0]/40 px-3.5 py-1 rounded-full backdrop-blur-md">
-          <Hammer size={13} className="text-[#7588e0] shrink-0" />
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-200">
-            Sitio Web Oficial en Construcción
-          </span>
-        </div>
-
         {/* 2. Título Principal Dominante */}
         <h1
           className="text-2xl sm:text-4xl lg:text-5xl font-bold leading-snug sm:leading-tight max-w-xs sm:max-w-3xl mx-auto text-white drop-shadow-md tracking-tight"
