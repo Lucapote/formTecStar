@@ -9,7 +9,7 @@ import {
   Bot,
   Hammer
 } from 'lucide-react';
-import DynamicBackground from '../components/DynamicBackground';
+import DynamicBackground from '../components/common/DynamicBackground';
 import { COLORS } from '../data/formData';
 
 export default function HomePage() {
@@ -66,7 +66,7 @@ export default function HomePage() {
 
             {/* Botón CTA: Emoji en Móvil / Arrow Icon en Desktop */}
             <Link
-              to="/form1"
+              to="/form2"
               className="relative z-10 w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white transition-all transform hover:scale-[1.01] active:scale-95 shadow-md shrink-0 cursor-pointer"
               style={{ backgroundColor: COLORS.purple1 }}
             >

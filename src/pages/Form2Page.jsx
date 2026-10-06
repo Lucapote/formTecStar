@@ -13,7 +13,7 @@ import { FORM_STEPS } from '../data/formData';
 import { submitLead } from '../services/leadService';
 import { cleanPhoneNumber, validateEmail } from '../utils/helpers';
 
-export default function Form1Page() {
+export default function Form2Page() {
   const [currentStep, setCurrentStep] = useState(0);
   const [hasScholarship, setHasScholarship] = useState(false);
   const [vacancies, setVacancies] = useState(4);
@@ -143,7 +143,7 @@ export default function Form1Page() {
     return <DisqualifiedView />;
   }
 
-  // 3. Vista Principal del Embudo Multipaso
+  // 3. Vista Principal del Embudo Multipaso sin Precios
   return (
     <div
       className="min-h-screen w-screen flex flex-col md:flex-row overflow-y-auto relative"
@@ -151,8 +151,8 @@ export default function Form1Page() {
     >
       <DynamicBackground />
 
-      {/* Sidebar Branding Desktop */}
-      <SidebarBranding displayVacancies={displayVacancies} />
+      {/* Sidebar Branding Desktop (Sin Precios) */}
+      <SidebarBranding displayVacancies={displayVacancies} showPrices={false} />
 
       {/* Panel Derecho de Formulario */}
       <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-6 lg:p-8 pt-4 sm:pt-6 lg:pt-8 relative overflow-y-auto min-h-full">
@@ -210,7 +210,8 @@ export default function Form1Page() {
                 vacancies={vacancies}
                 selectedUrgency={formData.urgency}
                 onScholarshipToggle={handleScholarshipToggle}
-                onSelectUrgency={handleUrgencySelect}
+                onUrgencySelect={handleUrgencySelect}
+                showPrices={false}
               />
             )}
 

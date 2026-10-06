@@ -76,7 +76,7 @@ export default function DynamicBackground({ sidesOnly = false }) {
         sparkleStars.push({
           x: getXPosition(),
           y: Math.random() * height,
-          size: sidesOnly ? (Math.random() * 2.5 + 2) : (Math.random() * 10 + 6), // Tamaño pequeño en sidesOnly
+          size: sidesOnly ? (Math.random() * 2.5 + 2) : (Math.random() * 10 + 6),
           baseOpacity: sidesOnly ? (Math.random() * 0.4 + 0.2) : (Math.random() * 0.6 + 0.4),
           opacity: sidesOnly ? (Math.random() * 0.4 + 0.2) : (Math.random() * 0.6 + 0.4),
           twinkleSpeed: Math.random() * 0.005 + 0.002,
@@ -88,12 +88,11 @@ export default function DynamicBackground({ sidesOnly = false }) {
       }
     };
 
-    // Dibujar estrella de 4 puntas estilizada (+ destello simétrico)
+    // Dibujar estrella de 4 puntas estilizada
     const drawSparkleStar = (x, y, size, opacity) => {
       ctx.save();
       ctx.translate(x, y);
 
-      // Resplandor tenue exterior
       ctx.shadowColor = 'rgba(255, 248, 230, 0.7)';
       ctx.shadowBlur = size * 1.1;
 
@@ -110,7 +109,6 @@ export default function DynamicBackground({ sidesOnly = false }) {
       ctx.closePath();
       ctx.fill();
 
-      // Centro brillante
       ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, opacity + 0.3)})`;
       ctx.shadowBlur = size * 0.4;
       ctx.beginPath();
@@ -137,19 +135,16 @@ export default function DynamicBackground({ sidesOnly = false }) {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Fondo base oscuro suave
       ctx.fillStyle = '#040416';
       ctx.fillRect(0, 0, width, height);
 
-      // Gradiente radial tenue en el centro para resaltar la lectura
       const bgGlow = ctx.createRadialGradient(width * 0.5, height * 0.35, 0, width * 0.5, height * 0.35, Math.max(width, height) * 0.85);
-      bgGlow.addColorStop(0, 'rgba(58, 54, 156, 0.2)'); // Morado TecStars tenue
+      bgGlow.addColorStop(0, 'rgba(58, 54, 156, 0.2)');
       bgGlow.addColorStop(0.6, 'rgba(5, 5, 33, 0.5)');
       bgGlow.addColorStop(1, 'rgba(3, 3, 18, 0.98)');
       ctx.fillStyle = bgGlow;
       ctx.fillRect(0, 0, width, height);
 
-      // 1. Renderizar puntos estelares
       for (let i = 0; i < dotStars.length; i++) {
         const star = dotStars[i];
 
@@ -167,7 +162,6 @@ export default function DynamicBackground({ sidesOnly = false }) {
         drawDotStar(star.x, star.y, star.radius, star.opacity);
       }
 
-      // 2. Renderizar estrellas de 4 puntas
       for (let i = 0; i < sparkleStars.length; i++) {
         const star = sparkleStars[i];
 
@@ -179,7 +173,6 @@ export default function DynamicBackground({ sidesOnly = false }) {
         star.x += star.vx;
         star.y += star.vy;
 
-        // Mantener dentro de bordes laterales si sidesOnly está activo
         if (sidesOnly) {
           const sideMargin = width * 0.22;
           if (star.x > sideMargin && star.x < width - sideMargin) {
