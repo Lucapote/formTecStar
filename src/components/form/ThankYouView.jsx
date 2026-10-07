@@ -4,7 +4,10 @@ import DynamicBackground from '../common/DynamicBackground';
 import { COLORS } from '../../data/formData';
 import { WHATSAPP_PHONE } from '../../config/constants';
 
-export default function ThankYouView({ formData }) {
+export default function ThankYouView({ formData, contactName, contactPhone }) {
+  const name = formData?.contactName || contactName || 'Tutor';
+  const phone = formData?.contactPhone || contactPhone || '';
+
   return (
     <div
       className="min-h-screen w-screen flex flex-col items-center justify-start py-6 sm:py-10 p-4 relative overflow-y-auto"
@@ -29,7 +32,7 @@ export default function ThankYouView({ formData }) {
           </div>
 
           <h2 className="text-xl font-bold mb-1" style={{ color: COLORS.purple1, fontFamily: "'Fredoka', sans-serif" }}>
-            ¡Misión Iniciada, {formData.contactName}!
+            ¡Misión Iniciada, {name}!
           </h2>
 
           {/* Sede Ubicación */}
@@ -44,7 +47,7 @@ export default function ThankYouView({ formData }) {
           </div>
 
           <p className="text-gray-700 text-xs font-medium leading-relaxed mt-2">
-            Hemos recibido tus datos correctamente. En breve te contactaremos por WhatsApp al <span className="font-extrabold text-[#050521] whitespace-nowrap">+52 {formData.contactPhone}</span> para coordinar tu horario.
+            Hemos recibido tus datos correctamente. En breve te contactaremos por WhatsApp al <span className="font-extrabold text-[#050521] whitespace-nowrap">+52 {phone}</span> para coordinar tu horario.
           </p>
         </div>
 

@@ -8,8 +8,11 @@ export default function StepReservation({
   vacancies,
   selectedUrgency,
   onUrgencySelect,
+  onSelectUrgency,
   showPrices = true
 }) {
+  const handleUrgencyClick = onUrgencySelect || onSelectUrgency;
+
   return (
     <div className="space-y-3.5 animate-slideUpFade">
       <div className="space-y-2 text-xs py-1">
@@ -60,7 +63,7 @@ export default function StepReservation({
         <input
           type="checkbox"
           checked={hasScholarship}
-          onChange={(e) => onScholarshipToggle(e.target.checked)}
+          onChange={(e) => onScholarshipToggle && onScholarshipToggle(e.target.checked)}
           className="w-5 h-5 rounded text-[#3a369c] focus:ring-[#3a369c] border-gray-300 shrink-0 cursor-pointer accent-[#3a369c]"
         />
         <div className="ml-3 flex-1">
@@ -110,7 +113,7 @@ export default function StepReservation({
               key={option.value}
               onClick={() => {
                 if (isDisabled) return;
-                onUrgencySelect(option.value);
+                if (handleUrgencyClick) handleUrgencyClick(option.value);
               }}
               className={`
                 relative flex items-center p-3 rounded-xl border-2 transition-all duration-200
